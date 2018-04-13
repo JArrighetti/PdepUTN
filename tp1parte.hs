@@ -3,7 +3,7 @@
 import Text.Show.Functions
 import Data.List
 import Data.Maybe
-import Test.Hspec 
+import Test.Hspec
 
 data Usuario = Usuario {
  nombre :: String,
@@ -32,6 +32,7 @@ quedaigual unusuario = evento (billetera unusuario) unusuario
 
 -------------------------Transacciones--------------------------------
 
+<<<<<<< Updated upstream
 transaccion :: Evento-> Usuario-> Usuario-> Evento
 
 transaccion evento usuarioAlQueSeLeDebeAplicarLaTransaccion usuarioAlQueSeLeIntentaAplicarLaTransaccion
@@ -41,9 +42,20 @@ transaccion evento usuarioAlQueSeLeDebeAplicarLaTransaccion usuarioAlQueSeLeInte
 --Tests Transacciones 
 transaccion1 = transaccion cierredecuenta lucho 
 transaccion2 = transaccion (deposito 5) pepe 
+=======
+--Aclaracion: falta definir el tipo de transaccion
+--type Transaccion =
 
-ejecutarTestTransacciones = hspec $ do 
-	transaccion1EnPepe 
+transaccion evento nombreUsuario usuario  |nombreUsuario == nombre usuario = evento usuario
+										  |otherwise = quedaigual usuario
+
+--Tests Transacciones
+transaccion1 usuario = transaccion cierredecuenta "Luciano" usuario
+transaccion2 usuario = transaccion (deposito 5) "Jose" usuario
+>>>>>>> Stashed changes
+
+ejecutarTestTransacciones = hspec $ do
+	transaccion1EnPepe
 	transaccion2EnPepe
 	transaccion2EnPepe2
 
@@ -67,5 +79,10 @@ ejecutarTestNuevosEventos = hspec $ do
 	transaccion3EnLucho
 	transaccion4EnLucho
 
+<<<<<<< Updated upstream
 transaccion3EnLucho = it "Transaccion: 'Lucho toca y se va' en Lucho. Su billetera queda en 0" (billetera ((transaccion3 lucho2) lucho2) `shouldBe` 0)
 transaccion4EnLucho = it "Transaccion: 'Lucho es un ahorrante errante' en Lucho. Billetera inicial: 10 Billetera final: 34" (billetera ((transaccion4 lucho2) lucho2) `shouldBe` 34)
+=======
+transaccion3EnLucho = it "Lucho toca y se va. Su billetera queda en 0" (billetera (transaccion3 lucho2) `shouldBe` 0)
+transaccion4EnLucho = it "Lucho es un ahorrante errante. Billetera inicial: 10 Billetera final: 34" (billetera (transaccion4 lucho2) `shouldBe` 34)
+>>>>>>> Stashed changes
