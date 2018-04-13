@@ -18,15 +18,14 @@ pepe2 = Usuario "Jose" 50
 
 type Evento = Usuario -> Usuario
 
-evento nuevabilletera unusuario = unusuario { billetera=nuevabilletera}
-comominimo0 numero = max numero 0
-comomaximo10 numero = min numero 10
-deposito montodepo unusuario = evento (billetera unusuario + montodepo) unusuario
-extraccion montoextr unusuario = evento (comominimo0 (billetera unusuario - montoextr)) unusuario
---upgrade con 20% fijo
-upgrade unusuario = evento (comomaximo10 (billetera unusuario * 0.2) + billetera unusuario) unusuario
-cierredecuenta unusuario = evento 0 unusuario
-quedaigual unusuario = evento (billetera unusuario) unusuario
+evento nuevaBilletera unUsuario = unUsuario { billetera=nuevaBilletera}
+comoMinimo0 numero = max numero 0
+comoMaximo10 numero = min numero 10
+deposito montoADepositar unUsuario = evento (billetera unUsuario + montoADepositar) unUsuario
+extraccion montoAExtraer unUsuario = evento (comoMinimo0 (billetera unUsuario - montoAExtraer)) unUsuario
+upgrade unUsuario = evento (comoMaximo10 (billetera unUsuario * 0.2) + billetera unUsuario) unUsuario
+cierreDeCuenta unUsuario = evento 0 unUsuario
+quedaIgual unUsuario = evento (billetera unUsuario) unUsuario
 
 
 -------------------------Transacciones--------------------------------
@@ -36,10 +35,10 @@ transaccion :: Evento-> Usuario-> Usuario-> Evento
 
 transaccion evento usuarioAlQueSeLeDebeAplicarLaTransaccion usuarioAlQueSeLeIntentaAplicarLaTransaccion
   |  nombre usuarioAlQueSeLeDebeAplicarLaTransaccion == nombre usuarioAlQueSeLeIntentaAplicarLaTransaccion = evento
-  |  otherwise = quedaigual
+  |  otherwise = quedaIgual
 
 --Tests Transacciones
-transaccion1 = transaccion cierredecuenta lucho
+transaccion1 = transaccion cierreDeCuenta lucho
 transaccion2 = transaccion (deposito 5) pepe
 
 ejecutarTestTransacciones = hspec $ do
@@ -54,7 +53,7 @@ transaccion2EnPepe2 = it "Transaccion 'Pepe deposita 5 monedas' en Pepe2. Billet
 
 --------------------------NuevosEventos------------------------------
 
-tocoMeVoy usuario =  (cierredecuenta.upgrade.deposito 15) usuario
+tocoMeVoy usuario =  (cierreDeCuenta.upgrade.deposito 15) usuario
 ahorranteErrante usuario = (deposito 10.upgrade.deposito 8.extraccion 1.deposito 2.deposito 1) usuario
 
 --Test Nuevos Eventos
@@ -71,8 +70,11 @@ ejecutarTestNuevosEventos = hspec $ do
 transaccion3EnLucho = it "Transaccion: 'Lucho toca y se va' en Lucho. Su billetera queda en 0" (billetera ((transaccion3 lucho2) lucho2) `shouldBe` 0)
 transaccion4EnLucho = it "Transaccion: 'Lucho es un ahorrante errante' en Lucho. Billetera inicial: 10 Billetera final: 34" (billetera ((transaccion4 lucho2) lucho2) `shouldBe` 34)
 
+--------------------------Pago entre usuarios------------------------
 
-pagosentreusuarios usuarioAlQueSeLeDebeAplicarLaTransaccion montoaextraerodepositar
- | nombre usuarioAlQueSeLeDebeAplicarLaTransaccion == "Jose" = extraccion montoaextraerodepositar usuarioAlQueSeLeDebeAplicarLaTransaccion
- | nombre usuarioAlQueSeLeDebeAplicarLaTransaccion == "Luciano" = deposito montoaextraerodepositar usuarioAlQueSeLeDebeAplicarLaTransaccion
- | otherwise = quedaigual usuarioAlQueSeLeDebeAplicarLaTransaccion
+pagoEntreUsuarios :: Usuario->Usuario->Float->Usuario->Evento
+
+pagoEntreUsuarios usuarioExtraccion usuarioRecibeDeposito montoDeLaTransaccion usuarioAlQueSeLeDebeAplicarLaTransaccion  
+	| nombre usuarioExtraccion == nombre usuarioAlQueSeLeDebeAplicarLaTransaccion =  extraccion montoDeLaTransaccion
+	| nombre usuarioRecibeDeposito == nombre usuarioAlQueSeLeDebeAplicarLaTransaccion = deposito montoDeLaTransaccion 
+	| otherwise = quedaIgual
