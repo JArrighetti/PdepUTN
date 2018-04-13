@@ -23,7 +23,6 @@ comominimo0 numero = max numero 0
 comomaximo10 numero = min numero 10
 deposito montodepo unusuario = evento (billetera unusuario + montodepo) unusuario
 extraccion montoextr unusuario = evento (comominimo0 (billetera unusuario - montoextr)) unusuario
---upgrade porcentaje unusuario = evento (comomaximo10 (billetera unusuario * porcentaje) + billetera unusuario) unusuario
 --upgrade con 20% fijo
 upgrade unusuario = evento (comomaximo10 (billetera unusuario * 0.2) + billetera unusuario) unusuario
 cierredecuenta unusuario = evento 0 unusuario
@@ -32,27 +31,16 @@ quedaigual unusuario = evento (billetera unusuario) unusuario
 
 -------------------------Transacciones--------------------------------
 
-<<<<<<< Updated upstream
+
 transaccion :: Evento-> Usuario-> Usuario-> Evento
 
 transaccion evento usuarioAlQueSeLeDebeAplicarLaTransaccion usuarioAlQueSeLeIntentaAplicarLaTransaccion
-  |  nombre usuarioAlQueSeLeDebeAplicarLaTransaccion == nombre usuarioAlQueSeLeIntentaAplicarLaTransaccion = evento 
-  |  otherwise = quedaigual 
-
---Tests Transacciones 
-transaccion1 = transaccion cierredecuenta lucho 
-transaccion2 = transaccion (deposito 5) pepe 
-=======
---Aclaracion: falta definir el tipo de transaccion
---type Transaccion =
-
-transaccion evento nombreUsuario usuario  |nombreUsuario == nombre usuario = evento usuario
-										  |otherwise = quedaigual usuario
+  |  nombre usuarioAlQueSeLeDebeAplicarLaTransaccion == nombre usuarioAlQueSeLeIntentaAplicarLaTransaccion = evento
+  |  otherwise = quedaigual
 
 --Tests Transacciones
-transaccion1 usuario = transaccion cierredecuenta "Luciano" usuario
-transaccion2 usuario = transaccion (deposito 5) "Jose" usuario
->>>>>>> Stashed changes
+transaccion1 = transaccion cierredecuenta lucho
+transaccion2 = transaccion (deposito 5) pepe
 
 ejecutarTestTransacciones = hspec $ do
 	transaccion1EnPepe
@@ -79,10 +67,12 @@ ejecutarTestNuevosEventos = hspec $ do
 	transaccion3EnLucho
 	transaccion4EnLucho
 
-<<<<<<< Updated upstream
+
 transaccion3EnLucho = it "Transaccion: 'Lucho toca y se va' en Lucho. Su billetera queda en 0" (billetera ((transaccion3 lucho2) lucho2) `shouldBe` 0)
 transaccion4EnLucho = it "Transaccion: 'Lucho es un ahorrante errante' en Lucho. Billetera inicial: 10 Billetera final: 34" (billetera ((transaccion4 lucho2) lucho2) `shouldBe` 34)
-=======
-transaccion3EnLucho = it "Lucho toca y se va. Su billetera queda en 0" (billetera (transaccion3 lucho2) `shouldBe` 0)
-transaccion4EnLucho = it "Lucho es un ahorrante errante. Billetera inicial: 10 Billetera final: 34" (billetera (transaccion4 lucho2) `shouldBe` 34)
->>>>>>> Stashed changes
+
+
+pagosentreusuarios usuarioAlQueSeLeDebeAplicarLaTransaccion montoaextraerodepositar
+ | nombre usuarioAlQueSeLeDebeAplicarLaTransaccion == "Jose" = extraccion montoaextraerodepositar usuarioAlQueSeLeDebeAplicarLaTransaccion
+ | nombre usuarioAlQueSeLeDebeAplicarLaTransaccion == "Luciano" = deposito montoaextraerodepositar usuarioAlQueSeLeDebeAplicarLaTransaccion
+ | otherwise = quedaigual usuarioAlQueSeLeDebeAplicarLaTransaccion
