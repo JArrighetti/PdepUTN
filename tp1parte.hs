@@ -27,7 +27,6 @@ upgrade unUsuario = evento (comoMaximo10 (billetera unUsuario * 0.2) + billetera
 cierreDeCuenta unUsuario = evento 0 unUsuario
 quedaIgual unUsuario = evento (billetera unUsuario) unUsuario
 
-
 -------------------------Transacciones--------------------------------
 
 
@@ -78,3 +77,14 @@ pagoEntreUsuarios usuarioExtraccion usuarioRecibeDeposito montoDeLaTransaccion u
 	| nombre usuarioExtraccion == nombre usuarioAlQueSeLeDebeAplicarLaTransaccion =  extraccion montoDeLaTransaccion
 	| nombre usuarioRecibeDeposito == nombre usuarioAlQueSeLeDebeAplicarLaTransaccion = deposito montoDeLaTransaccion 
 	| otherwise = quedaIgual
+
+--Test Pago entre usuarios 
+
+transaccion5 = pagoEntreUsuarios pepe lucho 7 
+
+ejecutarTestPagoEntreUsuarios = hspec $ do
+	transaccion5EnPepe
+	transaccion5EnLucho
+
+transaccion5EnPepe = it "Transaccion: 'Pepe le da 7 unidades a Lucho' en Pepe. Produce le evento 'extraccion de 7 unidades' que al aplicarlo a la billetera de pepe de 10 monedas, la misma queda con 3 monedas" (billetera ((transaccion5 pepe) pepe) `shouldBe` 3)
+transaccion5EnLucho = it "Transaccion: 'Pepe le da 7 unidades a Lucho' en Pepe. Produce le evento 'deposito de 7 unidades' que al aplicarlo a la billetera de lucho de 10 monedas, la misma queda con 17 monedas" (billetera ((transaccion5 lucho2) lucho2) `shouldBe` 17)
