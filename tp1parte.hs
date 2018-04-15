@@ -16,6 +16,32 @@ pepe = Usuario "Jose" 10
 lucho = Usuario "Luciano" 2
 pepe2 = Usuario "Jose" 50
 
+--Ejecucion de todos los tests
+
+ejecutarTests = hspec $ do
+	describe "Tests Eventos:" $ do
+	it "1 - Depositar 10 monedas en una billetera de 10 monedas. Billetera inicial: 10, Billetera final: 20" (billetera (deposito 10 pepe) `shouldBe` 20)
+	it "2 - Extraer 3 monedas de una billetera de 10 monedas. Billetera inicial: 10, Billetera final: 7" (billetera (extraccion 3 pepe) `shouldBe` 7)
+	it "3 - Extraer 15 monedas de una billetera de 10 monedas. Billetera inicial: 10, Billetera final: 0" (billetera (extraccion 15 pepe) `shouldBe` 0)
+	it "4 - Upgrade en una billetera de 10 monedas. Billetera inicial: 10, Billetera final: 12" (billetera (upgrade pepe) `shouldBe` 12)
+	it "5 - Cerar la cuenta en una billetera de 10 monedas. Billetera inicial: 10, Billetera final: 0" (billetera (cierreDeCuenta pepe) `shouldBe` 0)
+	it "6 - Evento 'queda igual' en una billetera de 10 monedas. Billetera inicial: 10, Billetera final: 10" (billetera (quedaIgual pepe) `shouldBe` 10)
+	it "7 - Depositar 1000 monedas y luego hacer un upgrade en una billetera de 10 monedas. Billetera inicial: 10, Billetera final: 1020" (billetera ((upgrade.(deposito 1000)) pepe) `shouldBe` 1020)
+	describe "Tests Usuarios:" $ do
+	it "8 - Billetera de Pepe: 10" (billetera pepe `shouldBe` 10)
+	it "9 - Evento 'cierre de cuenta' en la billetera de pepe. Billetera final: 0" (billetera (cierreDeCuenta pepe)  `shouldBe` 0)
+	it "10 - Se depositan 15 monedas, extraen 2 y tiene un upgrade la billetera de Pepe" (billetera ((upgrade.(extraccion 2).(deposito 15)) pepe) `shouldBe` 27.6)
+	describe "Tests Transacciones:" $ do
+	transaccion1EnPepe
+	transaccion2EnPepe
+	transaccion2EnPepe2
+	describe "Tests Nuevos Eventos:" $ do
+	transaccion3EnLucho
+	transaccion4EnLucho
+	describe "Tests Pago entre usuarios:" $ do
+	transaccion5EnPepe
+	transaccion5EnLucho
+
 type Evento = Usuario -> Usuario
 
 evento nuevaBilletera unUsuario = unUsuario { billetera=nuevaBilletera}
@@ -45,9 +71,9 @@ ejecutarTestTransacciones = hspec $ do
 	transaccion2EnPepe
 	transaccion2EnPepe2
 
-transaccion1EnPepe = it "La billetera de pepe queda igual al querersele realizar la transaccion: 'Lucho cierra la cuenta'" (billetera ((transaccion1 pepe) pepe)  `shouldBe` billetera pepe)
-transaccion2EnPepe = it "Transaccion 'Pepe deposita 5 monedas' en Pepe. Billetera inicial: 10, Billetera final: 15" (billetera ((transaccion2 pepe) pepe) `shouldBe` (billetera pepe)+5)
-transaccion2EnPepe2 = it "Transaccion 'Pepe deposita 5 monedas' en Pepe2. Billetera inicial: 50, Billetera final: 55" (billetera ((transaccion2 pepe2) pepe2) `shouldBe` (billetera pepe2)+5)
+transaccion1EnPepe = it "11 - La billetera de pepe queda igual al querersele realizar la transaccion: 'Lucho cierra la cuenta'" (billetera ((transaccion1 pepe) pepe)  `shouldBe` billetera pepe)
+transaccion2EnPepe = it "12 - Transaccion 'Pepe deposita 5 monedas' en Pepe. Billetera inicial: 10, Billetera final: 15" (billetera ((transaccion2 pepe) pepe) `shouldBe` (billetera pepe)+5)
+transaccion2EnPepe2 = it "13 - Transaccion 'Pepe deposita 5 monedas' en Pepe2. Billetera inicial: 50, Billetera final: 55" (billetera ((transaccion2 pepe2) pepe2) `shouldBe` (billetera pepe2)+5)
 
 
 --------------------------NuevosEventos------------------------------
@@ -66,8 +92,8 @@ ejecutarTestNuevosEventos = hspec $ do
 	transaccion4EnLucho
 
 
-transaccion3EnLucho = it "Transaccion: 'Lucho toca y se va' en Lucho. Su billetera queda en 0" (billetera ((transaccion3 lucho2) lucho2) `shouldBe` 0)
-transaccion4EnLucho = it "Transaccion: 'Lucho es un ahorrante errante' en Lucho. Billetera inicial: 10 Billetera final: 34" (billetera ((transaccion4 lucho2) lucho2) `shouldBe` 34)
+transaccion3EnLucho = it "14 - Transaccion: 'Lucho toca y se va' en Lucho. Su billetera queda en 0" (billetera ((transaccion3 lucho2) lucho2) `shouldBe` 0)
+transaccion4EnLucho = it "15 - Transaccion: 'Lucho es un ahorrante errante' en Lucho. Billetera inicial: 10 Billetera final: 34" (billetera ((transaccion4 lucho2) lucho2) `shouldBe` 34)
 
 --------------------------Pago entre usuarios------------------------
 
@@ -80,11 +106,12 @@ pagoEntreUsuarios usuarioExtraccion usuarioRecibeDeposito montoDeLaTransaccion u
 
 --Test Pago entre usuarios 
 
+transaccion5 :: Usuario->Evento
 transaccion5 = pagoEntreUsuarios pepe lucho 7 
 
 ejecutarTestPagoEntreUsuarios = hspec $ do
 	transaccion5EnPepe
 	transaccion5EnLucho
 
-transaccion5EnPepe = it "Transaccion: 'Pepe le da 7 unidades a Lucho' en Pepe. Produce le evento 'extraccion de 7 unidades' que al aplicarlo a la billetera de pepe de 10 monedas, la misma queda con 3 monedas" (billetera ((transaccion5 pepe) pepe) `shouldBe` 3)
-transaccion5EnLucho = it "Transaccion: 'Pepe le da 7 unidades a Lucho' en Pepe. Produce le evento 'deposito de 7 unidades' que al aplicarlo a la billetera de lucho de 10 monedas, la misma queda con 17 monedas" (billetera ((transaccion5 lucho2) lucho2) `shouldBe` 17)
+transaccion5EnPepe = it "16 - Transaccion: 'Pepe le da 7 unidades a Lucho' en Pepe. Produce le evento 'extraccion de 7 unidades' que al aplicarlo a la billetera de pepe de 10 monedas, la misma queda con 3 monedas" (billetera ((transaccion5 pepe) pepe) `shouldBe` 3)
+transaccion5EnLucho = it "17 - Transaccion: 'Pepe le da 7 unidades a Lucho' en Pepe. Produce le evento 'deposito de 7 unidades' que al aplicarlo a la billetera de lucho de 10 monedas, la misma queda con 17 monedas" (billetera ((transaccion5 lucho2) lucho2) `shouldBe` 17)
