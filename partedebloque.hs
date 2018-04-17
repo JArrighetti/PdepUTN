@@ -48,8 +48,8 @@ pagosEntreUsuarios usuarioExtraccion usuarioRecibeDeposito montoDeLaTransaccion 
 
 
 transaccion evento usuarioAlQueSeLeDebeAplicarLaTransaccion usuarioAlQueSeLeIntentaAplicarLaTransaccion
-  |  nombre usuarioAlQueSeLeDebeAplicarLaTransaccion == nombre usuarioAlQueSeLeIntentaAplicarLaTransaccion = evento usuarioAlQueSeLeDebeAplicarLaTransaccion
-  |  otherwise = quedaIgual usuarioAlQueSeLeDebeAplicarLaTransaccion
+  |  nombre usuarioAlQueSeLeDebeAplicarLaTransaccion == nombre usuarioAlQueSeLeIntentaAplicarLaTransaccion = evento usuarioAlQueSeLeIntentaAplicarLaTransaccion
+  |  otherwise = quedaIgual usuarioAlQueSeLeIntentaAplicarLaTransaccion
 
 transaccion1 = transaccion cierreDeCuenta lucho
 transaccion2 = transaccion (deposito 5) pepe
@@ -58,4 +58,4 @@ transaccion4 = transaccion ahorranteErrante lucho
 transaccion5 = pagosEntreUsuarios pepe lucho 7
 
 bloque1 = [transaccion1,transaccion2,transaccion2,transaccion2,transaccion3,transaccion4,transaccion5,transaccion3]
-pruebadebloque = (bloque1 !! 1).(bloque1 !! 2)
+pruebadebloque = ((bloque1 !! 0).(bloque1 !! 1).(bloque1 !! 2).(bloque1 !! 3).(bloque1 !! 4).(bloque1 !! 5).(bloque1 !! 6).(bloque1 !! 7))
