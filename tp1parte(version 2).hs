@@ -25,11 +25,11 @@ ejecutarTests = hspec $ do
 	it "4 - Upgrade en una billetera de 10 monedas. Billetera inicial: 10, Billetera final: 12" (upgrade billeteraDePrueba `shouldBe` 12)
 	it "5 - Cerar la cuenta en una billetera de 10 monedas. Billetera inicial: 10, Billetera final: 0" (cierreDeCuenta billeteraDePrueba `shouldBe` 0)
 	it "6 - Evento 'queda igual' en una billetera de 10 monedas. Billetera inicial: 10, Billetera final: 10" (quedaIgual billeteraDePrueba `shouldBe` 10)
-	it "7 - Depositar 1000 monedas y luego hacer un upgrade en una billetera de 10 monedas. Billetera inicial: 10, Billetera final: 1020" ((upgrade.(deposito 1000)) billeteraDePrueba `shouldBe` 1020)
+	it "7 - Depositar 1000 monedas y luego hacer un upgrade en una billetera de 10 monedas. Billetera inicial: 10, Billetera final: 1020" ((upgrade.(deposito 1000)) billeteraDePrueba `shouldBe` 1020) -- ARREGLAR PARENTESIS 
 	describe "Tests Usuarios:" $ do
 	it "8 - Billetera de Pepe: 10" (billetera pepe `shouldBe` 10)
 	it "9 - Evento 'cierre de cuenta' en la billetera de pepe de 10 monedas. Billetera final: 0" ((cierreDeCuenta.billetera) pepe  `shouldBe` 0)
-	it "10 - Se depositan 15 monedas, extraen 2 y tiene un upgrade la billetera de Pepe de 10 monedas. Billetera inicial: 10, Billetera final: 27.6" ((upgrade.(extraccion 2).(deposito 15).billetera) pepe `shouldBe` 27.6)
+	it "10 - Se depositan 15 monedas, extraen 2 y tiene un upgrade la billetera de Pepe de 10 monedas. Billetera inicial: 10, Billetera final: 27.6" ((upgrade.(extraccion 2).(deposito 15).billetera) pepe `shouldBe` 27.6)  -- ARREGLAR PARENTESIS
 	describe "Tests Transacciones:" $ do
 	transaccion1EnPepe
 	transaccion2EnPepe
@@ -56,9 +56,9 @@ quedaIgual :: Evento
 
 deposito montoADepositar billetera = billetera + montoADepositar
 extraccion montoAExtraer billetera = comoMinimo0 (billetera-montoAExtraer)
-upgrade billetera = comoMaximo10 (billetera*0.2) +billetera
+upgrade billetera = comoMaximo10 (billetera*0.2) +billetera -- USAR COMPOSICION 
 cierreDeCuenta billetera = 0
-quedaIgual billetera = billetera
+quedaIgual billetera = billetera -- USAR ID
 
 
 -------------------------Transacciones--------------------------------
@@ -67,7 +67,7 @@ quedaIgual billetera = billetera
 transaccion :: Evento-> Usuario-> Usuario-> Evento
 
 transaccion evento usuarioAlQueSeLeDebeAplicarLaTransaccion usuarioAlQueSeLeIntentaAplicarLaTransaccion
-  |  nombre usuarioAlQueSeLeDebeAplicarLaTransaccion == nombre usuarioAlQueSeLeIntentaAplicarLaTransaccion = evento
+  |  nombre usuarioAlQueSeLeDebeAplicarLaTransaccion == nombre usuarioAlQueSeLeIntentaAplicarLaTransaccion = evento --DELEGAR
   |  otherwise = quedaIgual
 
 --Tests Transacciones
@@ -79,15 +79,15 @@ ejecutarTestTransacciones = hspec $ do
 	transaccion2EnPepe
 	transaccion2EnPepe2
 
-transaccion1EnPepe = it "11 - Transaccion: 'Lucho cierra la cuenta' aplicada en Pepe. Produce el evento 'Queda igual', que cuando se aplica a una billetera de 10 monedas, esta termina con el mismo monto. Billetera inicial: 10, Billetera final: 10" ((transaccion1 pepe) (billetera pepe)  `shouldBe` billetera pepe)
+transaccion1EnPepe = it "11 - Transaccion: 'Lucho cierra la cuenta' aplicada en Pepe. Produce el evento 'Queda igual', que cuando se aplica a una billetera de 10 monedas, esta termina con el mismo monto. Billetera inicial: 10, Billetera final: 10" ((transaccion1 pepe) (billetera pepe)  `shouldBe` billetera pepe) -- COMPARAR CON FLOAT Y COMPONER
 transaccion2EnPepe = it "12 - Transaccion 'Pepe deposita 5 monedas' en Pepe. Produce el evento 'deposito de 5 monedas', que aplicado a una billetera de 10 monedas quedaria: Billetera inicial: 10, Billetera final: 15" ((transaccion2 pepe) (billetera pepe) `shouldBe` (billetera pepe)+5)
 transaccion2EnPepe2 = it "13 - Transaccion 'Pepe deposita 5 monedas' en Pepe2. Produce el evento 'deposito de 5 monedas', que aplicado a una billetera de 50 monedas quedaria: Billetera inicial: 50, Billetera final: 55" ((transaccion2 pepe2) (billetera pepe2) `shouldBe` (billetera pepe2)+5)
 
 
 --------------------------NuevosEventos------------------------------
 
-tocoMeVoy billetera =  (cierreDeCuenta.upgrade.deposito 15) billetera
-ahorranteErrante billetera = (deposito 10.upgrade.deposito 8.extraccion 1.deposito 2.deposito 1) billetera
+tocoMeVoy billetera =  (cierreDeCuenta.upgrade.deposito 15) billetera -- POINT FREE
+ahorranteErrante billetera = (deposito 10.upgrade.deposito 8.extraccion 1.deposito 2.deposito 1) billetera -- POINT FREE
 
 --Test Nuevos Eventos
 
@@ -108,7 +108,7 @@ transaccion4EnLucho = it "15 -  Transaccion: 'Lucho es un ahorrante errante' en 
 pagoEntreUsuarios :: Usuario->Usuario->Float->Usuario->Evento
 
 pagoEntreUsuarios usuarioExtraccion usuarioRecibeDeposito montoDeLaTransaccion usuarioAlQueSeLeDebeAplicarLaTransaccion  
-	| nombre usuarioExtraccion == nombre usuarioAlQueSeLeDebeAplicarLaTransaccion =  extraccion montoDeLaTransaccion
+	| nombre usuarioExtraccion == nombre usuarioAlQueSeLeDebeAplicarLaTransaccion =  extraccion montoDeLaTransaccion -- DELEGAR
 	| nombre usuarioRecibeDeposito == nombre usuarioAlQueSeLeDebeAplicarLaTransaccion = deposito montoDeLaTransaccion 
 	| otherwise = quedaIgual
 
@@ -119,5 +119,5 @@ ejecutarTestPagoEntreUsuarios = hspec $ do
 	transaccion5EnPepe
 	transaccion5EnLucho
 
-transaccion5EnPepe = it "16 - Transaccion: 'Pepe le da 7 unidades a Lucho' en Pepe. Produce le evento 'extraccion de 7 unidades' que al aplicarlo a una billetera de 10 monedas, la misma queda con 3 monedas" ((transaccion5 pepe) (billetera pepe) `shouldBe` 3)
+transaccion5EnPepe = it "16 - Transaccion: 'Pepe le da 7 unidades a Lucho' en Pepe. Produce le evento 'extraccion de 7 unidades' que al aplicarlo a una billetera de 10 monedas, la misma queda con 3 monedas" ((transaccion5 pepe) (billetera pepe) `shouldBe` 3) --COMPONER
 transaccion5EnLucho = it "17 - Transaccion: 'Pepe le da 7 unidades a Lucho' en Pepe. Produce le evento 'deposito de 7 unidades' que al aplicarlo a una billetera de 10 monedas, la misma queda con 17 monedas" ((transaccion5 lucho2) (billetera lucho2) `shouldBe` 17)
