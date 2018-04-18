@@ -40,8 +40,6 @@ ejecutarTests = hspec $ do
 	transaccion5EnPepe
 	transaccion5EnLucho
 
-aplicarEventoALaBilleteraDeUnUsuario evento usuario = usuario {billetera=evento billetera}
-
 comoMinimo0 numero = max numero 0
 comoMaximo10 numero = min numero 10
 
@@ -121,3 +119,33 @@ ejecutarTestPagoEntreUsuarios = hspec $ do
 
 transaccion5EnPepe = it "16 - Transaccion: 'Pepe le da 7 unidades a Lucho' en Pepe. Produce le evento 'extraccion de 7 unidades' que al aplicarlo a una billetera de 10 monedas, la misma queda con 3 monedas" ((transaccion5 pepe.billetera) pepe `shouldBe` 3) --COMPONER
 transaccion5EnLucho = it "17 - Transaccion: 'Pepe le da 7 unidades a Lucho' en Pepe. Produce le evento 'deposito de 7 unidades' que al aplicarlo a una billetera de 10 monedas, la misma queda con 17 monedas" ((transaccion5 lucho2.billetera) lucho2 `shouldBe` 17)
+
+
+
+
+---------------------------------2da Entrega-------------------------------
+
+
+bloque1 = [transaccion1,transaccion2,transaccion2,transaccion2,transaccion3,transaccion4,transaccion5,transaccion3]
+bloque2 = [transaccion2,transaccion2,transaccion2,transaccion2,transaccion2]
+
+aplicarEventoALaBilleteraDeUnUsuario evento usuario = usuario {billetera = (evento.billetera) usuario}
+
+--punto 26 de blockChain
+aplicarBloqueDeTransaccionesAUnUsuario [] usuario = usuario
+aplicarBloqueDeTransaccionesAUnUsuario (cabeza:cola) usuario = aplicarBloqueDeTransaccionesAUnUsuario cola (aplicarEventoALaBilleteraDeUnUsuario (cabeza usuario) usuario)
+
+type BlockChain = [[Usuario->Evento]]
+blockChain:: BlockChain
+
+blockChain = [bloque2,bloque1,bloque1,bloque1,bloque1,bloque1,bloque1,bloque1,bloque1,bloque1,bloque1]
+
+--punto 26 de blockChain
+aplicarBlockChainAUnUsuario [] usuario = usuario
+aplicarBlockChainAUnUsuario (cabeza:cola) usuario = aplicarBlockChainAUnUsuario cola (aplicarBloqueDeTransaccionesAUnUsuario cabeza usuario)
+
+--punto 27 de blockChain
+usuarioDespuesDeUnBloqueN numeroDeBloque blockChain usuario = aplicarBlockChainAUnUsuario (take numeroDeBloque blockChain) usuario
+
+--punto 28 de blockChain
+aplicarBlockChainAUnConjuntoDeUsuario blockChain listaDeUsuarios = map (aplicarBlockChainAUnUsuario blockChain) listaDeUsuarios
