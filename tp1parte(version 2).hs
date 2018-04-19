@@ -131,9 +131,11 @@ bloque2 = [transaccion2,transaccion2,transaccion2,transaccion2,transaccion2]
 
 aplicarEventoALaBilleteraDeUnUsuario evento usuario = usuario {billetera = (evento.billetera) usuario}
 
---punto 26 de blockChain
+
 aplicarBloqueDeTransaccionesAUnUsuario [] usuario = usuario
 aplicarBloqueDeTransaccionesAUnUsuario (cabeza:cola) usuario = aplicarBloqueDeTransaccionesAUnUsuario cola (aplicarEventoALaBilleteraDeUnUsuario (cabeza usuario) usuario)
+
+-------------------------blockChain---------------------------------
 
 type BlockChain = [[Usuario->Evento]]
 blockChain:: BlockChain
@@ -149,3 +151,17 @@ usuarioDespuesDeUnBloqueN numeroDeBloque blockChain usuario = aplicarBlockChainA
 
 --punto 28 de blockChain
 aplicarBlockChainAUnConjuntoDeUsuario blockChain listaDeUsuarios = map (aplicarBlockChainAUnUsuario blockChain) listaDeUsuarios
+
+------------------------BlockChain infinito-------------------------------
+
+--punto 29 de BlockChain infinito
+
+agregarBloque lista = (lista++lista) : agregarBloque (lista++lista)
+crearBlockChainInfinito bloque = bloque : agregarBloque bloque
+
+aplicarBlockChainInfinitoAUnUsuario bloquesAplicados (cabeza:cola) usuario  | (billetera usuario) >= 10000 = bloquesAplicados
+																	 		| otherwise = aplicarBlockChainInfinitoAUnUsuario (bloquesAplicados+1) cola (aplicarBloqueDeTransaccionesAUnUsuario cabeza usuario)
+
+
+
+enCuantosBloquesUnUsuarioLlegaADiezMilMonedas bloque usuario = aplicarBlockChainInfinitoAUnUsuario 0 (crearBlockChainInfinito bloque) usuario
