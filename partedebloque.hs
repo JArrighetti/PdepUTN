@@ -125,11 +125,12 @@ transaccion5EnLucho = it "17 - Transaccion: 'Pepe le da 7 unidades a Lucho' en P
 
 ---------------------------------2da Entrega-------------------------------
 
-
+listaDeUsuarios = [pepe,lucho]
 bloque1 = [transaccion1,transaccion2,transaccion2,transaccion2,transaccion3,transaccion4,transaccion5,transaccion3]
 bloque2 = [transaccion2,transaccion2,transaccion2,transaccion2,transaccion2]
 
 aplicarEventoALaBilleteraDeUnUsuario evento usuario = usuario {billetera = (evento.billetera) usuario}
+nuevaBilletera nuevoMonto unUsuario = unUsuario {billetera=nuevoMonto}
 
 --punto 26 de blockChain
 aplicarBloqueDeTransaccionesAUnUsuario [] usuario = usuario
@@ -163,3 +164,13 @@ usuarioDespuesDeUnBloqueN numeroDeBloque blockChain usuario = aplicarBlockChainA
 
 --punto 28 de blockChain
 aplicarBlockChainAUnConjuntoDeUsuario blockChain listaDeUsuarios = map (aplicarBlockChainAUnUsuario blockChain) listaDeUsuarios
+
+testpunto21 = it "si le aplico el bloque 1 a pepe este deberia quedar con una billetera de 18" (aplicarBloqueDeTransaccionesAUnUsuario bloque1 pepe `shouldBe` nuevaBilletera 18 pepe)
+testpunto22 = it "apartir del bloque 1 y la lista de usuarios pepe y lucho el unico que supera los 10 pesos despues del bloque es pepe" (quientienemasdeN 10 listaDeUsuarios bloque1 `shouldBe` [pepe])
+testpunto23 = it "apartir del bloque 1 y la lista de usuarios pepe y lucho el mas rico es pepe" (quienesmasrico bloque1 listaDeUsuarios `shouldBe` pepe)
+testpunto24 = it "apartir del bloque 1 y la lista de usuarios pepe y lucho el menos rico es lucho" (quienesmenosrico bloque1 listaDeUsuarios `shouldBe` lucho)
+ejecutartestdebloque = hspec $ do
+  testpunto21
+  testpunto21
+  testpunto23
+  testpunto24
