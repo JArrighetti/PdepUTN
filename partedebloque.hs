@@ -135,15 +135,19 @@ aplicarEventoALaBilleteraDeUnUsuario evento usuario = usuario {billetera = (even
 aplicarBloqueDeTransaccionesAUnUsuario [] usuario = usuario
 aplicarBloqueDeTransaccionesAUnUsuario (cabeza:cola) usuario = aplicarBloqueDeTransaccionesAUnUsuario cola (aplicarEventoALaBilleteraDeUnUsuario (cabeza usuario) usuario)
 
-quientienemasdeN numero lista bloqueaaplicar = find (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar usuario) > numero)  lista
+quientienemasdeN numero lista bloqueaaplicar = filter (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar usuario) > numero)  lista
 
 billeteramasrica bloqueaaplicar lista = maximum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
 
 billeteramenosrica bloqueaaplicar lista = minimum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
 
-quienesmasrico bloqueaaplicar lista = find (\usuario-> billetera usuario == (billeteramasrica bloqueaaplicar lista)) (map(aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
+--quienesmasrico bloqueaaplicar lista = find (\usuario-> billetera usuario == (billeteramasrica bloqueaaplicar lista)) (map(aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
 
-quienesmenosrico bloqueaaplicar lista = find (\usuario-> billetera usuario == (billeteramenosrica bloqueaaplicar lista)) (map(aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
+quienesmasrico bloqueaaplicar lista = find (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar usuario) == (billeteramasrica bloqueaaplicar lista))  lista
+
+--quienesmenosrico bloqueaaplicar lista = find (\usuario-> billetera usuario == (billeteramenosrica bloqueaaplicar lista)) (map(aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
+
+quienesmenosrico bloqueaaplicar lista = find (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar usuario) == (billeteramenosrica bloqueaaplicar lista))  lista
 
 type BlockChain = [[Usuario->Evento]]
 blockChain:: BlockChain
