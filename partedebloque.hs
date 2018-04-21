@@ -137,13 +137,13 @@ aplicarBloqueDeTransaccionesAUnUsuario (cabeza:cola) usuario = aplicarBloqueDeTr
 
 quientienemasdeN numero lista = find (\usuario-> (billetera usuario) > numero) (map(aplicarBloqueDeTransaccionesAUnUsuario bloque1) lista)
 
-billeteramasrica  lista = maximum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloque1) lista)
+billeteramasrica bloqueaaplicar lista = maximum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
 
-billeteramenosrica  lista = minimum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloque1) lista)
+billeteramenosrica bloqueaaplicar lista = minimum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
 
-quienesmasrico bloqueaaplicar lista = find (\usuario-> billetera usuario == billeteramasrica lista) (map(aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
+quienesmasrico bloqueaaplicar lista = find (\usuario-> billetera usuario == (billeteramasrica bloqueaaplicar lista)) (map(aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
 
-quienesmenosrico bloqueaaplicar lista = find (\usuario-> billetera usuario == billeteramenosrica lista) (map(aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
+quienesmenosrico bloqueaaplicar lista = find (\usuario-> billetera usuario == (billeteramenosrica bloqueaaplicar lista)) (map(aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
 
 type BlockChain = [[Usuario->Evento]]
 blockChain:: BlockChain
