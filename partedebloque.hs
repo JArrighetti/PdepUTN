@@ -135,13 +135,15 @@ aplicarEventoALaBilleteraDeUnUsuario evento usuario = usuario {billetera = (even
 aplicarBloqueDeTransaccionesAUnUsuario [] usuario = usuario
 aplicarBloqueDeTransaccionesAUnUsuario (cabeza:cola) usuario = aplicarBloqueDeTransaccionesAUnUsuario cola (aplicarEventoALaBilleteraDeUnUsuario (cabeza usuario) usuario)
 
-quientienemasdeN numero lista = filter (> numero) (map (billetera.aplicarBloqueDeTransaccionesAUnUsuario bloque1) lista)
-quienesmasrico lista = maximum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloque1) lista)
-quienesmenosrico lista = minimum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloque1) lista)
+quientienemasdeN numero lista = find (\usuario-> (billetera usuario) > numero) (map(aplicarBloqueDeTransaccionesAUnUsuario bloque1) lista)
 
-aquienserefiere usuarioacomparar  lista
- | billetera (aplicarBloqueDeTransaccionesAUnUsuario bloque1 usuarioacomparar) == quienesmasrico lista = usuarioacomparar
- | billetera (aplicarBloqueDeTransaccionesAUnUsuario bloque1 usuarioacomparar) == quienesmenosrico lista = usuarioacomparar
+billeteramasrica  lista = maximum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloque1) lista)
+
+billeteramenosrica  lista = minimum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloque1) lista)
+
+quienesmasrico bloqueaaplicar lista = find (\usuario-> billetera usuario == billeteramasrica lista) (map(aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
+
+quienesmenosrico bloqueaaplicar lista = find (\usuario-> billetera usuario == billeteramenosrica lista) (map(aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
 
 type BlockChain = [[Usuario->Evento]]
 blockChain:: BlockChain
