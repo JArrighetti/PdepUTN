@@ -135,7 +135,7 @@ aplicarEventoALaBilleteraDeUnUsuario evento usuario = usuario {billetera = (even
 aplicarBloqueDeTransaccionesAUnUsuario [] usuario = usuario
 aplicarBloqueDeTransaccionesAUnUsuario (cabeza:cola) usuario = aplicarBloqueDeTransaccionesAUnUsuario cola (aplicarEventoALaBilleteraDeUnUsuario (cabeza usuario) usuario)
 
-quientienemasdeN numero lista = find (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloque1 usuario) > numero)  lista
+quientienemasdeN numero lista bloqueaaplicar = find (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar usuario) > numero)  lista
 
 billeteramasrica bloqueaaplicar lista = maximum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
 
