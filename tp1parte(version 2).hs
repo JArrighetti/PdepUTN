@@ -39,6 +39,14 @@ ejecutarTests = hspec $ do
 	describe "Tests Pago entre usuarios:" $ do
 	transaccion5EnPepe
 	transaccion5EnLucho
+	describe "Tests de bloques" $ do
+	testpunto21 
+	testpunto22 
+	testpunto23 
+	testpunto24 
+	describe "Tests de BlockChain" $ do
+	it "26 - Se le aplica una BlockaChain (compuesta por 1 bloque2 y 10 bloque1) a Pepe, y este termina con una billetera de 115 monedas" (aplicarBlockChainAUnUsuario blockChain pepe `shouldBe` pepe {billetera=115})
+
 
 comoMinimo0 numero = max numero 0
 comoMaximo10 numero = min numero 10
@@ -125,8 +133,6 @@ transaccion5EnLucho = it "17 - Transaccion: 'Pepe le da 7 unidades a Lucho' en P
 
 ---------------------------------2da Entrega-------------------------------
 
-
-
 type Bloque = [Usuario->Evento]
 
 bloque1 :: Bloque
@@ -134,7 +140,10 @@ bloque2 :: Bloque
 bloque1 = [transaccion1,transaccion2,transaccion2,transaccion2,transaccion3,transaccion4,transaccion5,transaccion3]
 bloque2 = [transaccion2,transaccion2,transaccion2,transaccion2,transaccion2]
 
+listaDeUsuarios = [pepe,lucho]
+
 aplicarEventoALaBilleteraDeUnUsuario evento usuario = usuario {billetera = (evento.billetera) usuario}
+nuevaBilletera nuevoMonto unUsuario = unUsuario {billetera=nuevoMonto}
 
 ------------------------------------Bloques---------------------------------------
 
@@ -145,6 +154,28 @@ aplicarBloqueDeTransaccionesAUnUsuario :: Bloque->Usuario->Usuario
 aplicarBloqueDeTransaccionesAUnUsuario [] usuario = usuario
 aplicarBloqueDeTransaccionesAUnUsuario (cabeza:cola) usuario = aplicarBloqueDeTransaccionesAUnUsuario cola (aplicarEventoALaBilleteraDeUnUsuario (cabeza usuario) usuario)
 
+--punto 22 de bloques
+quientienemasdeN numero lista bloqueaaplicar = filter (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar usuario) > numero)  lista
+
+--punto 23 de bloques
+billeteramasrica bloqueaaplicar lista = maximum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
+
+quienesmasrico bloqueaaplicar lista = fromJust (find (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar usuario) == (billeteramasrica bloqueaaplicar lista))  lista)
+
+--punto 24 de bloques
+billeteramenosrica bloqueaaplicar lista = minimum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
+
+quienesmenosrico bloqueaaplicar lista = fromJust (find (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar usuario) == (billeteramenosrica bloqueaaplicar lista))  lista)
+
+testpunto21 = it "21 - Si le aplico el bloque 1 a pepe este deberia quedar con una billetera de 18" (aplicarBloqueDeTransaccionesAUnUsuario bloque1 pepe `shouldBe` nuevaBilletera 18 pepe)
+testpunto22 = it "22 - A partir del bloque 1 y la lista de usuarios pepe y lucho el unico que supera los 10 pesos despues del bloque es pepe" (quientienemasdeN 10 listaDeUsuarios bloque1 `shouldBe` [pepe])
+testpunto23 = it "23 - A partir del bloque 1 y la lista de usuarios pepe y lucho el mas rico es pepe" (quienesmasrico bloque1 listaDeUsuarios `shouldBe` pepe)
+testpunto24 = it "24 - A partir del bloque 1 y la lista de usuarios pepe y lucho el menos rico es lucho" (quienesmenosrico bloque1 listaDeUsuarios `shouldBe` lucho)
+ejecutartestdebloque = hspec $ do
+  testpunto21
+  testpunto21
+  testpunto23
+  testpunto24
 
 -------------------------blockChain---------------------------------
 

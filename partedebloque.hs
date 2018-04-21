@@ -7,7 +7,7 @@ import Test.Hspec
 data Usuario = Usuario {
  nombre :: String,
  billetera :: Float
-} deriving (Show)
+} deriving (Show,Eq)
 
 --Usuarios de prueba
 pepe = Usuario "Jose" 10
@@ -144,11 +144,11 @@ billeteramenosrica bloqueaaplicar lista = minimum (map(billetera.aplicarBloqueDe
 
 --quienesmasrico bloqueaaplicar lista = find (\usuario-> billetera usuario == (billeteramasrica bloqueaaplicar lista)) (map(aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
 
-quienesmasrico bloqueaaplicar lista = find (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar usuario) == (billeteramasrica bloqueaaplicar lista))  lista
+quienesmasrico bloqueaaplicar lista = fromJust (find (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar usuario) == (billeteramasrica bloqueaaplicar lista))  lista)
 
 --quienesmenosrico bloqueaaplicar lista = find (\usuario-> billetera usuario == (billeteramenosrica bloqueaaplicar lista)) (map(aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
 
-quienesmenosrico bloqueaaplicar lista = find (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar usuario) == (billeteramenosrica bloqueaaplicar lista))  lista
+quienesmenosrico bloqueaaplicar lista = fromJust (find (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar usuario) == (billeteramenosrica bloqueaaplicar lista))  lista)
 
 type BlockChain = [[Usuario->Evento]]
 blockChain:: BlockChain
