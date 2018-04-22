@@ -24,7 +24,7 @@ ejecutarTests = hspec $ do
 	it "4 - Upgrade en una billetera de 10 monedas. Billetera inicial: 10, Billetera final: 12" (upgrade billeteraDePrueba `shouldBe` 12)
 	it "5 - Cerar la cuenta en una billetera de 10 monedas. Billetera inicial: 10, Billetera final: 0" (cierreDeCuenta billeteraDePrueba `shouldBe` 0)
 	it "6 - Evento 'queda igual' en una billetera de 10 monedas. Billetera inicial: 10, Billetera final: 10" (quedaIgual billeteraDePrueba `shouldBe` 10)
-	it "7 - Depositar 1000 monedas y luego hacer un upgrade en una billetera de 10 monedas. Billetera inicial: 10, Billetera final: 1020" ((upgrade.deposito 1000) billeteraDePrueba `shouldBe` 1020) -- ARREGLAR PARENTESIS
+	it "7 - Depositar 1000 monedas y luego hacer un upgrade en una billetera de 10 monedas. Billetera inicial: 10, Billetera final: 1020" ((upgrade.deposito 1000) billeteraDePrueba `shouldBe` 1020) -- ARREGLAR PARENTESIS 
 	describe "Tests Usuarios:" $ do
 	it "8 - Billetera de Pepe: 10" (billetera pepe `shouldBe` 10)
 	it "9 - Evento 'cierre de cuenta' en la billetera de pepe de 10 monedas. Billetera final: 0" ((cierreDeCuenta.billetera) pepe  `shouldBe` 0)
@@ -39,13 +39,17 @@ ejecutarTests = hspec $ do
 	describe "Tests Pago entre usuarios:" $ do
 	transaccion5EnPepe
 	transaccion5EnLucho
+	describe "\n\nTests de Usuarios luego de una transaccion:" $ do
+	it "18 - Si le aplico la transaccion 1 a pepe deberia quedar igual" (aplicarEventoALaBilleteraDeUnUsuario (transaccion1 pepe) pepe `shouldBe` pepe)
+	it "19 - Si le aplico la transaccion 5 a lucho su billetera deberia ser de 9" (aplicarEventoALaBilleteraDeUnUsuario (transaccion5 lucho) lucho `shouldBe` lucho{billetera= 9})
+	it "20 - Si le aplico la transaccion 5 y luego la transaccion2 a pepe deberia quedar con 8 monedas en su billetera" ((aplicarEventoALaBilleteraDeUnUsuario (transaccion5 pepe).aplicarEventoALaBilleteraDeUnUsuario (transaccion2 pepe)) pepe `shouldBe` pepe{billetera= 8})
 	describe "Tests de Bloques:" $ do
-	testpunto21
-	testpunto22
-	testpunto23
-	testpunto24
+	it "21 - Si le aplico el bloque 1 a pepe este deberia quedar con una billetera de 18" (aplicarBloqueDeTransaccionesAUnUsuario bloque1 pepe `shouldBe` pepe{billetera=18} )
+	it "22 - A partir del bloque 1 y la lista de usuarios pepe y lucho el unico que supera los 10 pesos despues del bloque es pepe" (quienTieneMasDeN bloque1 listaDeUsuarios 10 `shouldBe` [pepe])
+	it "23 - A partir del bloque 1 y la lista de usuarios pepe y lucho el mas rico es pepe" (quienesMasRico bloque1 listaDeUsuarios `shouldBe` pepe)
+	it "24 - A partir del bloque 1 y la lista de usuarios pepe y lucho el menos rico es lucho" (quienEsMenosRico bloque1 listaDeUsuarios `shouldBe` lucho)
 	describe "Tests de BlockChain:" $ do
-	it "25 - El peor bloque que tuvo Pepe en la BlockChain fue el bloque1, ya que si comenzara por ese, su billetera de 10 monedas acabaria con 18 monedas" (aplicarBloqueDeTransaccionesAUnUsuario (buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain pepe) pepe `shouldBe` pepe{billetera=18})
+	it "25 - El peor bloque que tuvo Pepe en la BlockChain fue el bloque1, ya que si comenzara por ese, su billetera de 10 monedas acabaria con 18 monedas" (aplicarBloqueDeTransaccionesAUnUsuario (buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain pepe) pepe `shouldBe` pepe{billetera=18}) 
 	it "26 - Se le aplica una BlockaChain (compuesta por 1 bloque2 y 10 bloque1) a Pepe, y este termina con una billetera de 115 monedas" (aplicarBlockChainAUnUsuario blockChain pepe `shouldBe` pepe {billetera=115})
 	it "27 - Se le aplican los primeros 3 bloques de una BlockChain a Pepe, y este queda con una billetera de 51 monedas" (usuarioDespuesDeUnBloqueN blockChain pepe 3 `shouldBe` pepe {billetera=51})
 	it "28 - Se aplica una BlockChain a Pepe y a Lucho, y estos quedan con billeteras de 115 y 0 monedas, respectivamente" (aplicarBlockChainAUnConjuntoDeUsuarios blockChain [pepe,lucho] `shouldBe` [pepe {billetera=115}, lucho {billetera=0}])
@@ -65,7 +69,7 @@ quedaIgual :: Evento
 
 deposito montoADepositar billetera = billetera + montoADepositar
 extraccion montoAExtraer billetera = comoMinimo0 (billetera-montoAExtraer)
-upgrade billetera = ((+) billetera.comoMaximo10.(*) 0.2) billetera -- USAR COMPOSICION
+upgrade billetera = ((+) billetera.comoMaximo10.(*) 0.2) billetera -- USAR COMPOSICION 
 cierreDeCuenta billetera = 0
 quedaIgual =  id  -- USAR ID
 
@@ -117,13 +121,13 @@ transaccion4EnLucho = it "15 -  Transaccion: 'Lucho es un ahorrante errante' en 
 
 pagoEntreUsuarios :: Usuario->Usuario->Float->Usuario->Evento
 
-pagoEntreUsuarios usuarioExtraccion usuarioRecibeDeposito montoDeLaTransaccion usuarioAlQueSeLeDebeAplicarLaTransaccion
+pagoEntreUsuarios usuarioExtraccion usuarioRecibeDeposito montoDeLaTransaccion usuarioAlQueSeLeDebeAplicarLaTransaccion  
 	| compararDosNombres (nombre usuarioExtraccion) (nombre usuarioAlQueSeLeDebeAplicarLaTransaccion) =  extraccion montoDeLaTransaccion -- DELEGAR
-	| compararDosNombres (nombre usuarioRecibeDeposito) (nombre usuarioAlQueSeLeDebeAplicarLaTransaccion) = deposito montoDeLaTransaccion
+	| compararDosNombres (nombre usuarioRecibeDeposito) (nombre usuarioAlQueSeLeDebeAplicarLaTransaccion) = deposito montoDeLaTransaccion 
 	| otherwise = quedaIgual
 
 transaccion5 :: Usuario->Evento
-transaccion5 = pagoEntreUsuarios pepe lucho 7
+transaccion5 = pagoEntreUsuarios pepe lucho 7 
 
 ejecutarTestPagoEntreUsuarios = hspec $ do
 	transaccion5EnPepe
@@ -131,8 +135,6 @@ ejecutarTestPagoEntreUsuarios = hspec $ do
 
 transaccion5EnPepe = it "16 - Transaccion: 'Pepe le da 7 unidades a Lucho' en Pepe. Produce le evento 'extraccion de 7 unidades' que al aplicarlo a una billetera de 10 monedas, la misma queda con 3 monedas" ((transaccion5 pepe.billetera) pepe `shouldBe` 3) --COMPONER
 transaccion5EnLucho = it "17 - Transaccion: 'Pepe le da 7 unidades a Lucho' en Pepe. Produce le evento 'deposito de 7 unidades' que al aplicarlo a una billetera de 10 monedas, la misma queda con 17 monedas" ((transaccion5 lucho2.billetera) lucho2 `shouldBe` 17)
-
-
 
 
 -----------------------------------------------------2da Entrega--------------------------------------------------------------
@@ -147,10 +149,6 @@ bloque2 = [transaccion2,transaccion2,transaccion2,transaccion2,transaccion2]
 listaDeUsuarios = [pepe,lucho]
 
 aplicarEventoALaBilleteraDeUnUsuario evento usuario = usuario {billetera = (evento.billetera) usuario}
-nuevaBilletera nuevoMonto unUsuario = unUsuario {billetera=nuevoMonto}
-testpunto18 = it "si le aplico la transaccion 1 a pepe deberia quedar igual" (aplicarEventoALaBilleteraDeUnUsuario (transaccion1 pepe) pepe `shouldBe` pepe)
-testpunto19 = it "si le aplico la transaccion 5 a lucho su billetera deberia ser de 9" (aplicarEventoALaBilleteraDeUnUsuario (transaccion5 lucho) lucho `shouldBe` lucho{billetera= 9})
-testpunto20 = it "si le aplico la transaccion 5 y luego la transaccion2 a pepe deberia quedar con 8 monedas en su billetera" (aplicarEventoALaBilleteraDeUnUsuario (transaccion5 (aplicarEventoALaBilleteraDeUnUsuario (transaccion2 pepe) pepe)) pepe `shouldBe` pepe{billetera= 8})
 
 -------------------------------------------------------------Bloques----------------------------------------------------------
 
@@ -162,33 +160,22 @@ aplicarBloqueDeTransaccionesAUnUsuario [] usuario = usuario
 aplicarBloqueDeTransaccionesAUnUsuario (cabeza:cola) usuario = aplicarBloqueDeTransaccionesAUnUsuario cola (aplicarEventoALaBilleteraDeUnUsuario (cabeza usuario) usuario)
 
 --punto 22 de bloques
-quientienemasdeN :: Bloque->[Usuario]->Float->[Usuario]
-quienTieneMasDeN bloqueaaplicar lista numero = filter (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar usuario) > numero)  lista
+quienTieneMasDeN :: Bloque->[Usuario]->Float->[Usuario]
+quienTieneMasDeN bloqueAAplicar lista numero = filter (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar usuario) > numero)  lista
 
 --punto 23 de bloques
-billeteraMasRica bloqueaaplicar lista = maximum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
+billeteraMasRica bloqueAAplicar lista = maximum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar) lista)
 
-quienesmasrico :: Bloque->[Usuario]->Usuario
-quienEsMasRico bloqueaaplicar lista = fromJust (find (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar usuario) == (billeteraMasRica bloqueaaplicar lista))  lista)
+quienesMasRico :: Bloque->[Usuario]->Usuario
+quienesMasRico bloqueAAplicar lista = fromJust (find (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar usuario) == (billeteraMasRica bloqueAAplicar lista))  lista)
 
 --punto 24 de bloques
-billeteraMenosRica bloqueaaplicar lista = minimum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar) lista)
+billeteraMenosRica bloqueAAplicar lista = minimum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar) lista)
 
-quienesmenosrico :: Bloque->[Usuario]->Usuario
-quienEsMenosRico bloqueaaplicar lista = fromJust (find (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueaaplicar usuario) == (billeteraMenosRica bloqueaaplicar lista))  lista)
+quienEsMenosRico :: Bloque->[Usuario]->Usuario
+quienEsMenosRico bloqueAAplicar lista = fromJust (find (\usuario-> billetera (aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar usuario) == (billeteraMenosRica bloqueAAplicar lista))  lista)
 
-testpunto21 = it "21 - Si le aplico el bloque 1 a pepe este deberia quedar con una billetera de 18" (aplicarBloqueDeTransaccionesAUnUsuario bloque1 pepe `shouldBe` nuevaBilletera 18 pepe)
-testpunto22 = it "22 - A partir del bloque 1 y la lista de usuarios pepe y lucho el unico que supera los 10 pesos despues del bloque es pepe" (quientieneMasDeN bloque1 listaDeUsuarios 10 `shouldBe` [pepe])
-testpunto23 = it "23 - A partir del bloque 1 y la lista de usuarios pepe y lucho el mas rico es pepe" (quienEsMasRico bloque1 listaDeUsuarios `shouldBe` pepe)
-testpunto24 = it "24 - A partir del bloque 1 y la lista de usuarios pepe y lucho el menos rico es lucho" (quienEsMenosRico bloque1 listaDeUsuarios `shouldBe` lucho)
-ejecutartestdebloque = hspec $ do
-  testpunto18
-  testpunto19
-  testpunto20
-  testpunto21
-  testpunto21
-  testpunto23
-  testpunto24
+
 
 ----------------------------------------------------------BlockChain------------------------------------------------------------
 
@@ -201,7 +188,7 @@ blockChain = [bloque2,bloque1,bloque1,bloque1,bloque1,bloque1,bloque1,bloque1,bl
 
 billeteraDeUnUsuarioDespuesDeUnBloque usuario bloque = (billetera.aplicarBloqueDeTransaccionesAUnUsuario bloque) usuario
 listaDeBilleterasDeUnUsuarioDespuesDeUnaBlockChain blockChain usuario = map (billeteraDeUnUsuarioDespuesDeUnBloque usuario) blockChain
-compararSiUnUsuarioTerminaConUnSaldoNDespuesDeUnBloque saldo usuario bloque = saldo == (billetera.aplicarBloqueDeTransaccionesAUnUsuario bloque) usuario
+compararSiUnUsuarioTerminaConUnSaldoNDespuesDeUnBloque saldo usuario bloque = saldo == (billetera.aplicarBloqueDeTransaccionesAUnUsuario bloque) usuario 
 
 buscarPeorBloqueDeUnUsuarioEnUnaBlockChain :: BlockChain->Usuario->Bloque
 buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain usuario = fromJust (find (compararSiUnUsuarioTerminaConUnSaldoNDespuesDeUnBloque ((minimum.listaDeBilleterasDeUnUsuarioDespuesDeUnaBlockChain blockChain) usuario) usuario) blockChain)
