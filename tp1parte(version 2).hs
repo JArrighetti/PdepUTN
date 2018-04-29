@@ -49,7 +49,7 @@ ejecutarTests = hspec $ do
 	it "23 - A partir del bloque 1 y la lista de usuarios pepe y lucho el mas rico es pepe" (quienesMasRico bloque1 listaDeUsuarios `shouldBe` pepe)
 	it "24 - A partir del bloque 1 y la lista de usuarios pepe y lucho el menos rico es lucho" (quienEsMenosRico bloque1 listaDeUsuarios `shouldBe` lucho)
 	describe "Tests de BlockChain:" $ do
-	it "25 - El peor bloque que tuvo Pepe en la BlockChain fue el bloque1, ya que si comenzara por ese, su billetera de 10 monedas acabaria con 18 monedas" (aplicarBloqueDeTransaccionesAUnUsuario (buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain pepe) pepe `shouldBe` pepe{billetera=18}) 
+	it "25 - El peor bloque que tuvo Pepe en la BlockChain fue el bloque1, ya que si comenzara por ese, su billetera de 10 monedas acabaria con 18 monedas" (aplicarBloqueDeTransaccionesAUnUsuario (buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain pepe) pepe `shouldBe` pepe{billetera=18})
 	it "26 - Se le aplica una BlockaChain (compuesta por 1 bloque2 y 10 bloque1) a Pepe, y este termina con una billetera de 115 monedas" (aplicarBlockChainAUnUsuario blockChain pepe `shouldBe` pepe {billetera=115})
 	it "27 - Se le aplican los primeros 3 bloques de una BlockChain a Pepe, y este queda con una billetera de 51 monedas" (usuarioDespuesDeUnBloqueN blockChain 3 pepe `shouldBe` pepe {billetera=51})
 	it "28 - Se aplica una BlockChain a Pepe y a Lucho, y estos quedan con billeteras de 115 y 0 monedas, respectivamente" (aplicarBlockChainAUnConjuntoDeUsuarios blockChain [pepe,lucho] `shouldBe` [pepe {billetera=115}, lucho {billetera=0}])
@@ -127,21 +127,20 @@ aplicarTransaccionAUnUsuario usuario transaccion = usuario {billetera = (transac
 --punto 21 de Bloques
 aplicarBloqueDeTransaccionesAUnUsuario :: Bloque->Usuario->Usuario
 aplicarBloqueDeTransaccionesAUnUsuario bloque usuario = foldl aplicarTransaccionAUnUsuario usuario bloque
+billeteraEspeciales funcionMaximumoMinimum bloqueAAplicar lista = funcionMaximumoMinimum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar) lista)
 
 --punto 22 de bloques
 quienTieneMasDeN :: Bloque->[Usuario]->Float->[Usuario]
 quienTieneMasDeN bloqueAAplicar lista numero = filter ((>numero).billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar)  lista
 
 --punto 23 de bloques
-billeteraMasRica bloqueAAplicar lista = maximum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar) lista)
 
 quienesMasRico :: Bloque->[Usuario]->Usuario
-quienesMasRico bloqueAAplicar lista = fromJust (find ((==billeteraMasRica bloqueAAplicar lista).billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar) lista)
---punto 24 de bloques
-billeteraMenosRica bloqueAAplicar lista = minimum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar) lista)
+quienesMasRico bloqueAAplicar lista = fromJust (find ((==billeteraEspeciales maximum bloqueAAplicar lista).billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar) lista)
 
+--punto 24 de bloques
 quienEsMenosRico :: Bloque->[Usuario]->Usuario
-quienEsMenosRico bloqueAAplicar lista = fromJust (find ((==billeteraMenosRica bloqueAAplicar lista).billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar) lista)
+quienEsMenosRico bloqueAAplicar lista = fromJust (find ((==billeteraEspeciales minimum bloqueAAplicar lista).billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar) lista)
 
 
 ----------------------------------------------------------BlockChain------------------------------------------------------------
@@ -151,13 +150,13 @@ blockChain:: BlockChain
 
 blockChain = [bloque2] ++ (generarListaDeNCantidadDeBloquesIguales bloque1 10)
 
-generarListaDeNCantidadDeBloquesIguales bloque cantidadDeBloques  | cantidadDeBloques == 0 = [] 
+generarListaDeNCantidadDeBloquesIguales bloque cantidadDeBloques  | cantidadDeBloques == 0 = []
 																  | otherwise = (bloque:generarListaDeNCantidadDeBloquesIguales bloque (cantidadDeBloques-1))
 --punto 25 de BlockChain
 
-billeteraDeUnUsuarioDespuesDeUnBloque usuario bloque = (billetera.aplicarBloqueDeTransaccionesAUnUsuario bloque) usuario 
+billeteraDeUnUsuarioDespuesDeUnBloque usuario bloque = (billetera.aplicarBloqueDeTransaccionesAUnUsuario bloque) usuario
 listaDeBilleterasDeUnUsuarioDespuesDeUnaBlockChain blockChain usuario = map (billeteraDeUnUsuarioDespuesDeUnBloque usuario) blockChain
-compararSiUnUsuarioTerminaConUnSaldoNDespuesDeUnBloque saldo usuario bloque = saldo == (billetera.aplicarBloqueDeTransaccionesAUnUsuario bloque) usuario 
+compararSiUnUsuarioTerminaConUnSaldoNDespuesDeUnBloque saldo usuario bloque = saldo == (billetera.aplicarBloqueDeTransaccionesAUnUsuario bloque) usuario
 
 buscarPeorBloqueDeUnUsuarioEnUnaBlockChain :: BlockChain->Usuario->Bloque
 buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain usuario = fromJust (find (compararSiUnUsuarioTerminaConUnSaldoNDespuesDeUnBloque ((minimum.listaDeBilleterasDeUnUsuarioDespuesDeUnaBlockChain blockChain) usuario) usuario) blockChain)
@@ -168,11 +167,11 @@ aplicarBlockChainAUnUsuario blockChain usuario = foldl (flip aplicarBloqueDeTran
 
 --punto 27 de blockChain
 usuarioDespuesDeUnBloqueN :: BlockChain->Int->Usuario->Usuario
-usuarioDespuesDeUnBloqueN blockChain numeroDeBloque = aplicarBlockChainAUnUsuario (take numeroDeBloque blockChain) 
+usuarioDespuesDeUnBloqueN blockChain numeroDeBloque = aplicarBlockChainAUnUsuario (take numeroDeBloque blockChain)
 
 --punto 28 de blockChain
 aplicarBlockChainAUnConjuntoDeUsuarios :: BlockChain->[Usuario]->[Usuario]
-aplicarBlockChainAUnConjuntoDeUsuarios blockChain = map (aplicarBlockChainAUnUsuario blockChain) 
+aplicarBlockChainAUnConjuntoDeUsuarios blockChain = map (aplicarBlockChainAUnUsuario blockChain)
 
 ----------------------------------------------------BlockChain infinito--------------------------------------------------------
 
@@ -185,7 +184,7 @@ aplicarBlockChainInfinitoAUnUsuarioHastaLlegarADiezMilMonedas (bloque:blockChain
 																	 				 	   | otherwise = 1 + aplicarBlockChainInfinitoAUnUsuarioHastaLlegarADiezMilMonedas blockChain (aplicarBloqueDeTransaccionesAUnUsuario bloque usuario)
 
 enCuantosBloquesDeUnBlockChainInfinitoUnUsuarioLlegaADiezMilMonedas :: Bloque->Usuario->Int
-enCuantosBloquesDeUnBlockChainInfinitoUnUsuarioLlegaADiezMilMonedas bloque = aplicarBlockChainInfinitoAUnUsuarioHastaLlegarADiezMilMonedas (crearBlockChainInfinito bloque) 
+enCuantosBloquesDeUnBlockChainInfinitoUnUsuarioLlegaADiezMilMonedas bloque = aplicarBlockChainInfinitoAUnUsuarioHastaLlegarADiezMilMonedas (crearBlockChainInfinito bloque)
 
 --El concepto clave que se aplicó en este punto es el de evaluación diferida, ya que, dado que es imposible evaluar completamente una lista infinita,
 --con ésto se hace posible trabajar una parte de la misma
