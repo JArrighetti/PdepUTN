@@ -128,29 +128,28 @@ billeteraDeUnUsuarioDespuesDeUnBloque bloque = billetera.aplicarBloqueDeTransacc
 
 aplicarBloqueDeTransaccionesAUnUsuario :: Bloque->Usuario->Usuario
 aplicarBloqueDeTransaccionesAUnUsuario bloque usuario = foldl aplicarTransaccionAUnUsuario usuario bloque
-
+billeteraEspeciales funcionMaximumoMinimum bloqueAAplicar lista = funcionMaximumoMinimum (map(billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar) lista)
 
 quienTieneMasDeN :: Bloque->[Usuario]->Float->[Usuario]
 quienTieneMasDeN bloqueAAplicar usuarios numero = filter ((>numero).billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar) usuarios
 
 quienEsMasRico :: Bloque->[Usuario]->Usuario
-quienEsMasRico bloqueAAplicar = calcularMaximoOminimoDeUnaListaSegunUnCriterio (maximoEntreDosUsuariosDespuesDeUnBloque bloqueAAplicar)
+quienEsMasRico bloqueAAplicar lista = fromJust (find ((==billeteraEspeciales maximum bloqueAAplicar lista).billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar) lista)
 
 quienEsMenosRico :: Bloque->[Usuario]->Usuario
-quienEsMenosRico bloqueAAplicar = calcularMaximoOminimoDeUnaListaSegunUnCriterio (minimoEntreDosUsuariosDespuesDeUnBloque bloqueAAplicar) 
+quienEsMenosRico bloqueAAplicar lista = fromJust (find ((==billeteraEspeciales minimum bloqueAAplicar lista).billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar) lista)
 
 calcularMaximoOminimoDeUnaListaSegunUnCriterio :: (t->t->t)->[t]->t
 calcularMaximoOminimoDeUnaListaSegunUnCriterio _ [] = error "Excepcion: lista vacia"
-calcularMaximoOminimoDeUnaListaSegunUnCriterio _ (cabeza:[]) = cabeza 
+calcularMaximoOminimoDeUnaListaSegunUnCriterio _ (cabeza:[]) = cabeza
 calcularMaximoOminimoDeUnaListaSegunUnCriterio criterioParaCalcularMaximoOminimoEntreDosElementos (cabeza:segundaCabeza:cola) = calcularMaximoOminimoDeUnaListaSegunUnCriterio criterioParaCalcularMaximoOminimoEntreDosElementos ((criterioParaCalcularMaximoOminimoEntreDosElementos cabeza segundaCabeza):cola)
 
-
 maximoEntreDosUsuariosDespuesDeUnBloque :: Bloque->Usuario->Usuario->Usuario
-maximoEntreDosUsuariosDespuesDeUnBloque bloque usuario1 usuario2 	| billeteraDeUnUsuarioDespuesDeUnBloque bloque usuario1 > billeteraDeUnUsuarioDespuesDeUnBloque bloque usuario2 = usuario1
-																	| otherwise = usuario2
+maximoEntreDosUsuariosDespuesDeUnBloque bloque usuario1 usuario2   | billeteraDeUnUsuarioDespuesDeUnBloque bloque usuario1 > billeteraDeUnUsuarioDespuesDeUnBloque bloque usuario2 = usuario1
+                                 | otherwise = usuario2
 minimoEntreDosUsuariosDespuesDeUnBloque :: Bloque->Usuario->Usuario->Usuario
-minimoEntreDosUsuariosDespuesDeUnBloque bloque usuario1 usuario2 	| billeteraDeUnUsuarioDespuesDeUnBloque bloque usuario1 < billeteraDeUnUsuarioDespuesDeUnBloque bloque usuario2 = usuario1
-																 	| otherwise = usuario2
+minimoEntreDosUsuariosDespuesDeUnBloque bloque usuario1 usuario2   | billeteraDeUnUsuarioDespuesDeUnBloque bloque usuario1 < billeteraDeUnUsuarioDespuesDeUnBloque bloque usuario2 = usuario1
+                                  | otherwise = usuario2
 
 ----------------------------------------------------------BlockChain------------------------------------------------------------
 
