@@ -139,17 +139,6 @@ quienEsMasRico bloqueAAplicar lista = fromJust (find ((==billeteraEspeciales max
 quienEsMenosRico :: Bloque->[Usuario]->Usuario
 quienEsMenosRico bloqueAAplicar lista = fromJust (find ((==billeteraEspeciales minimum bloqueAAplicar lista).billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar) lista)
 
-calcularMaximoOminimoDeUnaListaSegunUnCriterio :: (t->t->t)->[t]->t
-calcularMaximoOminimoDeUnaListaSegunUnCriterio _ [] = error "Excepcion: lista vacia"
-calcularMaximoOminimoDeUnaListaSegunUnCriterio _ (cabeza:[]) = cabeza
-calcularMaximoOminimoDeUnaListaSegunUnCriterio criterioParaCalcularMaximoOminimoEntreDosElementos (cabeza:segundaCabeza:cola) = calcularMaximoOminimoDeUnaListaSegunUnCriterio criterioParaCalcularMaximoOminimoEntreDosElementos ((criterioParaCalcularMaximoOminimoEntreDosElementos cabeza segundaCabeza):cola)
-
-maximoEntreDosUsuariosDespuesDeUnBloque :: Bloque->Usuario->Usuario->Usuario
-maximoEntreDosUsuariosDespuesDeUnBloque bloque usuario1 usuario2   | billeteraDeUnUsuarioDespuesDeUnBloque bloque usuario1 > billeteraDeUnUsuarioDespuesDeUnBloque bloque usuario2 = usuario1
-                                 | otherwise = usuario2
-minimoEntreDosUsuariosDespuesDeUnBloque :: Bloque->Usuario->Usuario->Usuario
-minimoEntreDosUsuariosDespuesDeUnBloque bloque usuario1 usuario2   | billeteraDeUnUsuarioDespuesDeUnBloque bloque usuario1 < billeteraDeUnUsuarioDespuesDeUnBloque bloque usuario2 = usuario1
-                                  | otherwise = usuario2
 
 ----------------------------------------------------------BlockChain------------------------------------------------------------
 
@@ -158,13 +147,12 @@ type BlockChain = [Bloque]
 blockChain:: BlockChain
 blockChain = [bloque2] ++ replicate 10 bloque1
 
-peorBloqueDeUnUsuario :: Usuario->Bloque->Bloque->Bloque
-peorBloqueDeUnUsuario usuario bloque1 bloque2	| billeteraDeUnUsuarioDespuesDeUnBloque bloque1 usuario < billeteraDeUnUsuarioDespuesDeUnBloque bloque2 usuario = bloque1
-												| otherwise = bloque2
-
+listaDeBilleterasDeUnUsuarioDespuesDeUnaBlockChain blockChain usuario = map ((flip billeteraDeUnUsuarioDespuesDeUnBloque) usuario) blockChain
+compararSiUnUsuarioTerminaConUnSaldoNDespuesDeUnBloque saldo usuario bloque = saldo == (billetera.aplicarBloqueDeTransaccionesAUnUsuario bloque) usuario
+ 
 buscarPeorBloqueDeUnUsuarioEnUnaBlockChain :: BlockChain->Usuario->Bloque
-buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain usuario = calcularMaximoOminimoDeUnaListaSegunUnCriterio (peorBloqueDeUnUsuario usuario) blockChain
-
+buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain usuario = fromJust (find (compararSiUnUsuarioTerminaConUnSaldoNDespuesDeUnBloque ((minimum.listaDeBilleterasDeUnUsuarioDespuesDeUnaBlockChain blockChain) usuario) usuario) blockChain)
+ 
 aplicarBlockChainAUnUsuario :: BlockChain->Usuario->Usuario
 aplicarBlockChainAUnUsuario blockChain usuario = foldl (flip aplicarBloqueDeTransaccionesAUnUsuario) usuario blockChain
 
