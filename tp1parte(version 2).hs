@@ -133,15 +133,17 @@ billeteraEspeciales funcionMaximumoMinimum bloqueAAplicar lista = funcionMaximum
 quienTieneMasDeN :: Bloque->[Usuario]->Float->[Usuario]
 quienTieneMasDeN bloqueAAplicar usuarios numero = filter ((>numero).billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar) usuarios
 
---recibe un criterio de comparacion (<, >, <=, >=) que espera recibir 2 Float y devuelve True si el usuario1 lo cumple con respecto del usuario 2
-compararBilleterasDeDosUsuariosDespuesDeUnBloque criterioDeComparacion bloqueAAplicar usuario1 usuario2 = criterioDeComparacion (billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar usuario1) (billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar usuario2)
-verificarSiUnUsuarioEsElMasOelMenosAdineradoDespuesDeUnBloque criterioDeComparacion bloqueAAplicar lista usuario = all (compararBilleterasDeDosUsuariosDespuesDeUnBloque criterioDeComparacion bloqueAAplicar usuario) lista
-
 quienEsMasRico :: Bloque->[Usuario]->Usuario
-quienEsMasRico bloqueAAplicar lista = fromJust (find (verificarSiUnUsuarioEsElMasOelMenosAdineradoDespuesDeUnBloque (>=) bloqueAAplicar lista) lista)
+quienEsMasRico bloqueAAplicar lista = fromJust (find (verificarSiUnElementoDeLaListaEsElMaximoOelMinimoLuegoDeAplicarlesUnaFuncion (>=) (billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar) lista) lista)
 
 quienEsMenosRico :: Bloque->[Usuario]->Usuario
-quienEsMenosRico bloqueAAplicar lista = fromJust (find (verificarSiUnUsuarioEsElMasOelMenosAdineradoDespuesDeUnBloque (<=) bloqueAAplicar lista) lista)
+quienEsMenosRico bloqueAAplicar lista = fromJust (find (verificarSiUnElementoDeLaListaEsElMaximoOelMinimoLuegoDeAplicarlesUnaFuncion (<=) (billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar) lista) lista)
+
+--recibe un criterio de comparación (<, >, <=, >=) que espera recibir 2 elementos y una funcion para aplicarla a esos dos elementos y luego devuelve True si el elemento1 cumple el criterio con respecto del elemento2
+compararDosElementosSegunUnLuegoDeAplicarlesUnaMismaFuncion :: (b ->b -> Bool) -> (a->b) -> a -> a -> Bool
+compararDosElementosSegunUnLuegoDeAplicarlesUnaMismaFuncion criterioDeComparacion funcionAaplicar elemento1 elemento2 = criterioDeComparacion (funcionAaplicar elemento1) (funcionAaplicar elemento2)
+verificarSiUnElementoDeLaListaEsElMaximoOelMinimoLuegoDeAplicarlesUnaFuncion :: (b -> b -> Bool) -> (a -> b) -> [a] -> a -> Bool
+verificarSiUnElementoDeLaListaEsElMaximoOelMinimoLuegoDeAplicarlesUnaFuncion criterioDeComparacion funcionAaplicar lista elemento = all (compararDosElementosSegunUnLuegoDeAplicarlesUnaMismaFuncion criterioDeComparacion funcionAaplicar elemento) lista
 
 ----------------------------------------------------------BlockChain------------------------------------------------------------
 
@@ -150,17 +152,11 @@ type BlockChain = [Bloque]
 blockChain:: BlockChain
 blockChain = [bloque2] ++ replicate 10 bloque1
 
-listaDeBilleterasDeUnUsuarioDespuesDeUnaBlockChain blockChain usuario = map ((flip billeteraDeUnUsuarioDespuesDeUnBloque) usuario) blockChain
-compararSiUnUsuarioTerminaConUnSaldoNDespuesDeUnBloque saldo usuario bloque = saldo == (billetera.aplicarBloqueDeTransaccionesAUnUsuario bloque) usuario
- 
 buscarPeorBloqueDeUnUsuarioEnUnaBlockChain :: BlockChain->Usuario->Bloque
-buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain usuario = fromJust (find (compararSiUnUsuarioTerminaConUnSaldoNDespuesDeUnBloque ((minimum.listaDeBilleterasDeUnUsuarioDespuesDeUnaBlockChain blockChain) usuario) usuario) blockChain)
- 
-
---buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain usuario = 
+buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain usuario = fromJust (find (verificarSiUnElementoDeLaListaEsElMaximoOelMinimoLuegoDeAplicarlesUnaFuncion (<=) ((flip billeteraDeUnUsuarioDespuesDeUnBloque) usuario) blockChain) blockChain)
 
 aplicarBlockChainAUnUsuario :: BlockChain->Usuario->Usuario
-aplicarBlockChainAUnUsuario blockChain usuario = foldl (flip aplicarBloqueDeTransaccionesAUnUsuario) usuario blockChain
+aplicarBlockChainAUnUsuario blockChain usuario = aplicarBloqueDeTransaccionesAUnUsuario (concat blockChain) usuario
 
 usuarioDespuesDeUnaCantidadDeBloquesNdeUnaBlockChain :: BlockChain->Int->Usuario->Usuario
 usuarioDespuesDeUnaCantidadDeBloquesNdeUnaBlockChain blockChain cantidadDeBloques = aplicarBlockChainAUnUsuario (take cantidadDeBloques blockChain)
