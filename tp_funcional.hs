@@ -134,10 +134,10 @@ quienTieneMasDeN :: Bloque->[Usuario]->Float->[Usuario]
 quienTieneMasDeN bloqueAAplicar usuarios numero = filter ((>numero).billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar) usuarios
 
 quienEsMasRico :: Bloque->[Usuario]->Usuario
-quienEsMasRico bloqueAAplicar lista = fromJust (find (verificarSiUnElementoDeLaListaEsElMaximoOelMinimoLuegoDeAplicarlesUnaFuncion (>=) (billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar) lista) lista)
+quienEsMasRico bloqueAAplicar usuarios = fromJust (find (verificarSiUnElementoDeLaListaEsElMaximoOelMinimoLuegoDeAplicarlesUnaFuncion (>=) (billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar) usuarios) usuarios)
 
 quienEsMenosRico :: Bloque->[Usuario]->Usuario
-quienEsMenosRico bloqueAAplicar lista = fromJust (find (verificarSiUnElementoDeLaListaEsElMaximoOelMinimoLuegoDeAplicarlesUnaFuncion (<=) (billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar) lista) lista)
+quienEsMenosRico bloqueAAplicar usuarios = fromJust (find (verificarSiUnElementoDeLaListaEsElMaximoOelMinimoLuegoDeAplicarlesUnaFuncion (<=) (billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar) usuarios) usuarios)
 
 --recibe un criterio de comparación (<, >, <=, >=) que espera recibir 2 elementos y una funcion para aplicarla a esos dos elementos y luego devuelve True si el elemento1 cumple el criterio con respecto del elemento2
 compararDosElementosSegunUnLuegoDeAplicarlesUnaMismaFuncion :: (b ->b -> Bool) -> (a->b) -> a -> a -> Bool
