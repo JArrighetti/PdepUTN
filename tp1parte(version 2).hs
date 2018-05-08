@@ -133,12 +133,15 @@ billeteraEspeciales funcionMaximumoMinimum bloqueAAplicar lista = funcionMaximum
 quienTieneMasDeN :: Bloque->[Usuario]->Float->[Usuario]
 quienTieneMasDeN bloqueAAplicar usuarios numero = filter ((>numero).billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar) usuarios
 
+--recibe un criterio de comparacion (<, >, <=, >=) que espera recibir 2 Float y devuelve True si el usuario1 lo cumple con respecto del usuario 2
+compararBilleterasDeDosUsuariosDespuesDeUnBloque criterioDeComparacion bloqueAAplicar usuario1 usuario2 = criterioDeComparacion (billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar usuario1) (billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar usuario2)
+verificarSiUnUsuarioEsElMasOelMenosAdineradoDespuesDeUnBloque criterioDeComparacion bloqueAAplicar lista usuario = all (compararBilleterasDeDosUsuariosDespuesDeUnBloque criterioDeComparacion bloqueAAplicar usuario) lista
+
 quienEsMasRico :: Bloque->[Usuario]->Usuario
-quienEsMasRico bloqueAAplicar lista = fromJust (find ((==billeteraEspeciales maximum bloqueAAplicar lista).billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar) lista)
+quienEsMasRico bloqueAAplicar lista = fromJust (find (verificarSiUnUsuarioEsElMasOelMenosAdineradoDespuesDeUnBloque (>=) bloqueAAplicar lista) lista)
 
 quienEsMenosRico :: Bloque->[Usuario]->Usuario
-quienEsMenosRico bloqueAAplicar lista = fromJust (find ((==billeteraEspeciales minimum bloqueAAplicar lista).billetera.aplicarBloqueDeTransaccionesAUnUsuario bloqueAAplicar) lista)
-
+quienEsMenosRico bloqueAAplicar lista = fromJust (find (verificarSiUnUsuarioEsElMasOelMenosAdineradoDespuesDeUnBloque (<=) bloqueAAplicar lista) lista)
 
 ----------------------------------------------------------BlockChain------------------------------------------------------------
 
@@ -153,6 +156,9 @@ compararSiUnUsuarioTerminaConUnSaldoNDespuesDeUnBloque saldo usuario bloque = sa
 buscarPeorBloqueDeUnUsuarioEnUnaBlockChain :: BlockChain->Usuario->Bloque
 buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain usuario = fromJust (find (compararSiUnUsuarioTerminaConUnSaldoNDespuesDeUnBloque ((minimum.listaDeBilleterasDeUnUsuarioDespuesDeUnaBlockChain blockChain) usuario) usuario) blockChain)
  
+
+--buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain usuario = 
+
 aplicarBlockChainAUnUsuario :: BlockChain->Usuario->Usuario
 aplicarBlockChainAUnUsuario blockChain usuario = foldl (flip aplicarBloqueDeTransaccionesAUnUsuario) usuario blockChain
 
