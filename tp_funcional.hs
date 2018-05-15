@@ -170,9 +170,9 @@ agregarBloque bloque = (bloque++bloque) : agregarBloque (bloque++bloque)
 crearBlockChainInfinito bloque = bloque : agregarBloque bloque
 
 enCuantosBloquesDeUnaBlockChainUnUsuarioLlegaAUnaCantidadDeDineroN :: BlockChain->Dinero->Usuario->Int
-enCuantosBloquesDeUnaBlockChainUnUsuarioLlegaAUnaCantidadDeDineroN [] _ _ = error "Error: El usuario no alcanza esa cantidad de dinero"
-enCuantosBloquesDeUnaBlockChainUnUsuarioLlegaAUnaCantidadDeDineroN (bloque:blockChain) cantidadDeDinero usuario | (billetera usuario) >= cantidadDeDinero = 0
-																	 				 	   						| otherwise = 1 + enCuantosBloquesDeUnaBlockChainUnUsuarioLlegaAUnaCantidadDeDineroN blockChain cantidadDeDinero (aplicarBloqueDeTransaccionesAUnUsuario bloque usuario)
+enCuantosBloquesDeUnaBlockChainUnUsuariiooLlegaAUnaCantidadDeDineroN [] _ _ = error "Error: El usuario no alcanza esa cantidad de dinero"
+enCuantosBloquesDeUnaBlockChainUnUsuarLlegaAUnaCantidadDeDineroN (bloque:blockChain) cantidadDeDinero usuario | (billetera usuario) >= cantidadDeDinero = 0
+													      | otherwise 1+ 	enCuantosBloquesDeUnaBlockChainUnUsuarLlegaAUnaCantidadDeDineroN blockChain cantidadDeDinero (aplicarBloqueDeTransaccionesAUnUsuario bloque usuario)		 				 	   						| otherwise = 1 + enCuantosBloquesDeUnaBlockChainUnUsuarioLlegaAUnaCantidadDeDineroN blockChain cantidadDeDinero (aplicarBloqueDeTransaccionesAUnUsuario bloque usuario)
 
 --El concepto clave que se aplicó en este punto es el de evaluación diferida, ya que, dado que es imposible evaluar completamente una lista infinita,
 --con esto se hace posible trabajar una parte de la misma
