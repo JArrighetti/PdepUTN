@@ -49,7 +49,7 @@ ejecutarTests = hspec $ do
 	it "23 - A partir del bloque 1 y la usuarios de usuarios pepe y lucho el mas rico es pepe" (quienEsMasRico bloque1 usuariosDeUsuarios `shouldBe` pepe)
 	it "24 - A partir del bloque 1 y la usuarios de usuarios pepe y lucho el menos rico es lucho" (quienEsMenosRico bloque1 usuariosDeUsuarios `shouldBe` lucho)
 	describe "Tests de BlockChain:" $ do
---it "25 - El peor bloque que tuvo Pepe en la BlockChain fue el bloque1, ya que si comenzara por ese, su billetera de 10 monedas acabaria con 18 monedas" (aplicarBloqueDeTransaccionesAUnUsuario (buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain pepe) pepe `shouldBe` pepe{billetera=18})
+	it "25 - El peor bloque que tuvo Pepe en la BlockChain fue el bloque1, ya que si comenzara por ese, su billetera de 10 monedas acabaria con 18 monedas" (aplicarBloqueDeTransaccionesAUnUsuario (buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain pepe) pepe `shouldBe` pepe{billetera=18})
 	it "26 - Se le aplica una BlockaChain (compuesta por 1 bloque2 y 10 bloque1) a Pepe, y este termina con una billetera de 115 monedas" (aplicarBlockChainAUnUsuario blockChain pepe `shouldBe` pepe {billetera=115})
 	it "27 - Se le aplican los primeros 3 bloques de una BlockChain a Pepe, y este queda con una billetera de 51 monedas" (usuarioDespuesDeUnaCantidadDeBloquesNdeUnaBlockChain blockChain 3 pepe `shouldBe` pepe {billetera=51})
 	it "28 - Se aplica una BlockChain a Pepe y a Lucho, y estos quedan con billeteras de 115 y 0 monedas, respectivamente" (aplicarBlockChainAUnConjuntoDeUsuarios blockChain [pepe,lucho] `shouldBe` [pepe {billetera=115}, lucho {billetera=0}])
@@ -140,9 +140,9 @@ quienEsMenosRico :: Bloque->[Usuario]->Usuario
 quienEsMenosRico bloqueAAplicar lista = minimoSegun (billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar) lista
 
 máximoSegún criterio lista = fromJust (find (esElMejorDeTodos criterio lista) lista)
-minimoSegun criterio lista = fromJust (find (esElPeorDeTodos criterio lista) lista)
+minimoSegun criterio lista = fromJust (find (esElMejorDeTodos ((*(-1)).criterio) lista) lista)
 esElMejorDeTodos criterio lista elMejor = all (\unoPeor -> criterio elMejor >= criterio unoPeor) lista
-esElPeorDeTodos criterio lista elpeor = all (\unomejor -> criterio elpeor <= criterio unomejor) lista
+
 ----------------------------------------------------------BlockChain------------------------------------------------------------
 
 type BlockChain = [Bloque]
@@ -150,11 +150,8 @@ type BlockChain = [Bloque]
 blockChain:: BlockChain
 blockChain = [bloque2] ++ replicate 10 bloque1
 
-
---buscarPeorBloqueDeUnUsuarioEnUnaBlockChain :: BlockChain->Usuario->Bloque
---buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain usuario = fromJust (find (verificarSiUnElementoDeLaListaEsElMaximoOelMinimoLuegoDeAplicarlesUnaFuncion (<=) ((flip billeteraDeUnUsuarioDespuesDeUnBloque) usuario) blockChain) blockChain)
-
-
+buscarPeorBloqueDeUnUsuarioEnUnaBlockChain :: BlockChain->Usuario->Bloque
+buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain usuario = minimoSegun (flip(billeteraDeUnUsuarioDespuesDeUnBloque) usuario) blockChain
 aplicarBlockChainAUnUsuario :: BlockChain->Usuario->Usuario
 aplicarBlockChainAUnUsuario blockChain usuario = aplicarBloqueDeTransaccionesAUnUsuario (concat blockChain) usuario
 
