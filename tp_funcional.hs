@@ -140,7 +140,7 @@ quienEsMenosRico :: Bloque->[Usuario]->Usuario
 quienEsMenosRico bloqueAAplicar lista = minimoSegun (billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar) lista
 
 máximoSegún criterio lista = fromJust (find (esElMejorDeTodos criterio lista) lista)
-minimoSegun criterio lista = fromJust (find (esElMejorDeTodos ((*(-1)).criterio) lista) lista)
+minimoSegun criterio lista = máximoSegún ((*(-1)).criterio) lista
 esElMejorDeTodos criterio lista elMejor = all (\unoPeor -> criterio elMejor >= criterio unoPeor) lista
 
 ----------------------------------------------------------BlockChain------------------------------------------------------------
@@ -151,7 +151,7 @@ blockChain:: BlockChain
 blockChain = [bloque2] ++ replicate 10 bloque1
 
 buscarPeorBloqueDeUnUsuarioEnUnaBlockChain :: BlockChain->Usuario->Bloque
-buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain usuario = minimoSegun (flip(billeteraDeUnUsuarioDespuesDeUnBloque) usuario) blockChain
+buscarPeorBloqueDeUnUsuarioEnUnaBlockChain blockChain usuario = minimoSegun (flip billeteraDeUnUsuarioDespuesDeUnBloque usuario) blockChain
 aplicarBlockChainAUnUsuario :: BlockChain->Usuario->Usuario
 aplicarBlockChainAUnUsuario blockChain usuario = aplicarBloqueDeTransaccionesAUnUsuario (concat blockChain) usuario
 
