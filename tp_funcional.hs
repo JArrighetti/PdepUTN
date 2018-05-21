@@ -134,10 +134,10 @@ quienTieneMasDeN :: Bloque->[Usuario]->Float->[Usuario]
 quienTieneMasDeN bloqueAAplicar usuarios numero = filter ((>numero).billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar) usuarios
 
 quienEsMasRico :: Bloque->[Usuario]->Usuario
-quienEsMasRico bloqueAAplicar lista = máximoSegún (billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar) lista
+quienEsMasRico bloqueAAplicar = máximoSegún (billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar) 
 
 quienEsMenosRico :: Bloque->[Usuario]->Usuario
-quienEsMenosRico bloqueAAplicar lista = minimoSegun (billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar) lista
+quienEsMenosRico bloqueAAplicar = minimoSegun (billeteraDeUnUsuarioDespuesDeUnBloque bloqueAAplicar) 
 
 máximoSegún criterio lista = fromJust (find (esElMejorDeTodos criterio lista) lista)
 minimoSegun criterio lista = máximoSegún ((*(-1)).criterio) lista
