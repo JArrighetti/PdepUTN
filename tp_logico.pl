@@ -13,7 +13,7 @@ esPopular(hoc).
 esPopular(starWars).
 
 quiereMirar(juan,hoc).
-quiereMirar(aya,got).
+quiereMirar(aye,got).
 quiereMirar(gaston,himym).
 
 cantidadDeEpisodios(got,3,12).
@@ -38,5 +38,9 @@ leDijo(aye, gaston, got, relacion(amistad, tyrion, dragon)).
 
 esSpoiler(Serie, CosaQuePaso) :- paso(Serie, _, _, CosaQuePaso).
 
-leSpoileo(Persona1,Persona2,Serie) :- 
-	not(forall(leDijo(Persona1,Persona2,Serie,CosaQuePaso), not(esSpoiler(Serie,CosaQuePaso)))).
+leSpoileo(PersonaQueSpoilea, Victima, Serie) :-
+	leDijo(PersonaQueSpoilea,Victima,Serie,UnHecho),
+	esSpoiler(Serie, UnHecho).
+
+televidenteResponsable(BuenTelevidente) :- quienMira(BuenTelevidente, _), not(leSpoileo(BuenTelevidente,_,_)).
+televidenteResponsable(BuenTelevidente) :- quiereMirar(BuenTelevidente, _), not(leSpoileo(BuenTelevidente,_,_)).
