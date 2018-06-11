@@ -1,3 +1,29 @@
+:- begin_tests(spoilers).
+
+	test(la_muerte_de_emperor_es_spoiler_para_starWars, nondet) :- esSpoiler(starWars,muerte(emperor)).
+	test(la_muerte_de_pedro_no_es_spoiler_para_starWars, fail) :- esSpoiler(starWars,muerte(pedro)).
+	test(la_relacion_de_parentesco_entre_anakin_y_rey_es_spoiler_para_starWars, nondet) :- esSpoiler(starWars,relacion(parentesco,anakin,rey)).
+	test(la_relacion_de_parentesco_entre_anakin_y_lavezzi_no_es_spoiler_para_starWars, fail) :- esSpoiler(starWars,relacion(parentesco,anakin,lavezzi)).
+
+:- end_tests(spoilers).
+
+:- begin_tests(quienes_spoilean).
+
+	test(gaston_le_spoileo_a_maiu_algo_de_gameOfThrones, nondet) :- leSpoileo(gaston, maiu, got).
+	test(nico_le_spoileo_a_maiu_algo_de_starWars, nondet) :- leSpoileo(nico,maiu,starWars).
+
+:- end_tests(quienes_spoilean).
+
+:- begin_tests(televidentes_responsables).
+
+	test(televidentes_que_son_responsables, set(TelevidentesResponsables == [juan,maiu])) :- televidenteResponsable(TelevidentesResponsables).
+	%test(gaston_no_es_un_televidente_responsable, fail) :- televidenteResponsable(gaston).
+	%test(nico_no_es_un_televidente_responsable, fail) :- televidenteResponsable(nico).
+	%test(aye_no_es_una_televidente_responsable, fail) :- televidenteResponsable(aye).
+	test(televidentes_que_son_responsables, set(TelevidentesResponsables == [gaston,nico,aye]), fail) :- televidenteResponsable(TelevidentesResponsables).
+
+:- end_tests(televidentes_responsables).
+
 quienMira(juan,himym).
 quienMira(juan,futurama).
 quienMira(juan,got).
