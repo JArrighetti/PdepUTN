@@ -49,6 +49,7 @@ cantidadDeEpisodios(got,3,12).
 cantidadDeEpisodios(got,2,10).
 cantidadDeEpisodios(himym,1,23).
 cantidadDeEpisodios(drHouse,8,16).
+cantidadDeEpisodios(futurama,8,16).
 
 %no se puso la serie madMen porque no se sabe cuántos episodios tiene la segunda temporada
 %entonces, al no ponerlo se asume que esto no se conoce (Principio de universo cerrado)
@@ -63,27 +64,60 @@ paso(got, 4, 5, relacion(amistad, tyrion, dragon)).
 
 leDijo(gaston, maiu, got, relacion(amistad, tyrion, dragon)).
 leDijo(nico, maiu, starWars, relacion(parentesco, vader, luke)).
-leDijo(nico, juan, got, muerte(tyrion)). 
+leDijo(nico, juan, got, muerte(tyrion)).
 leDijo(aye, juan, got, relacion(amistad, tyrion, john)).
 leDijo(aye, maiu, got, relacion(amistad, tyrion, john)).
 leDijo(aye, gaston, got, relacion(amistad, tyrion, dragon)).
 
 esSpoiler(Serie, CosaQuePaso) :- paso(Serie, _, _, CosaQuePaso).
 %se pueden hacer las dos consultas porque es inversible
-%podemos hacer consultas individuales como: "esSpoiler(starWars,muerte(emperor)).". Muestra si cumple o no la regla 
+%podemos hacer consultas individuales como: "esSpoiler(starWars,muerte(emperor)).". Muestra si cumple o no la regla
 %O consultas existenciales como: "esSpoiler(starWars,Spoilers).". Muestra todos los Spoilers de starWars
 
+miraOQuiereMirar(Persona, Serie):- quienMira(Persona, Serie).
+miraOQuiereMirar(Persona, Serie):- quiereMirar(Persona, Serie).
+
 leSpoileo(PersonaQueSpoilea, Victima, Serie) :-
-	quienMira(Victima, Serie),
+	miraOQuiereMirar(Victima, Serie),
 	leDijo(PersonaQueSpoilea,Victima,Serie,UnHecho),
 	esSpoiler(Serie, UnHecho).
 
-leSpoileo(PersonaQueSpoilea, Victima, Serie) :-
-	quiereMirar(Victima, Serie),
-	leDijo(PersonaQueSpoilea,Victima,Serie,UnHecho),
-	esSpoiler(Serie, UnHecho).
 %Lo mismo. Es inversible, por lo tanto admite consultas individuales ("leSpoileo(gaston, maiu, got).")
 %y existenciales ("leSpoileo(gaston, Victimas, got)." (personas a las que spoileo gaston)).
 
-televidenteResponsable(BuenTelevidente) :- quienMira(BuenTelevidente, _), not(leSpoileo(BuenTelevidente,_,_)).
+televidenteResponsable(BuenTelevidente) :-
+ miraOQuiereMirar(BuenTelevidente, _),
+ not(leSpoileo(BuenTelevidente,_,_)).
+
+pasoAlgoFuerte(Serie):-
+ paso(Serie,_,_,muerte(_)).
+pasoAlgoFuerte(Serie):-
+ paso(Serie,_,_,relacion(amorosa,_,_)).
+pasoAlgoFuerte(Serie):-
+ paso(Serie,_,_,relacion(parentesco,_,_)).
+
+ pasoAlgoFuerteEnTemporada(Serie,Temporada):-
+ paso(Serie,Temporada,_,muerte(_)).
+pasoAlgoFuerteEnTemporada(Serie, Temporada):-
+ paso(Serie,Temporada,_,relacion(amorosa,_,_)).
+pasoAlgoFuerteEnTemporada(Serie, Temporada):-
+ paso(Serie,Temporada,_,relacion(parentesco,_,_)).
+
+vieneZafando(Persona,Serie):-
+ miraOQuiereMirar(Persona,Serie),
+ not(leSpoileo(_,Persona,Serie)),
+ paso(Serie,_,_,_),
+ forall(paso(Serie,Temporada,_,_), pasoAlgoFuerteEnTemporada(Serie, Temporada)).
+/*
+ vieneZafando(Persona,Serie):-
+ miraOQuiereMirar(Persona,Serie),
+ not(leSpoileo(_,Persona,Serie)),
+ cantidadDeEpisodios(Serie,_,_),
+ forall(cantidadDeEpisodios(Serie,Temporada,_), pasoAlgoFuerteEnTemporada(Serie, Temporada)).
+*/
+vieneZafando(Persona,Serie):-
+ miraOQuiereMirar(Persona,Serie),
+ not(leSpoileo(_,Persona,Serie)),
+ esPopular(Serie).
+
 televidenteResponsable(BuenTelevidente) :- quiereMirar(BuenTelevidente, _), not(leSpoileo(BuenTelevidente,_,_)).
