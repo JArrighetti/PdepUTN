@@ -119,5 +119,3 @@ vieneZafando(Persona,Serie):-
  miraOQuiereMirar(Persona,Serie),
  not(leSpoileo(_,Persona,Serie)),
  esPopular(Serie).
-
-televidenteResponsable(BuenTelevidente) :- quiereMirar(BuenTelevidente, _), not(leSpoileo(BuenTelevidente,_,_)).
